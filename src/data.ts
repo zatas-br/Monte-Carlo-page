@@ -56,7 +56,7 @@ export const profiles: Profile[] = [
   },
   {
     name: "Lucas Sperandio",
-    image: "https://placehold.co/400x400/333/FFF?text=Lucas",
+    image: "/Imagens/lucas.jpeg",
     description: "Lucas Sperandio é aquele cara tranquilo que todo mundo respeita. Com uma vibe serena e religiosa, ele tem uma aparência que lembra um lenhador, com a barba sempre bem cuidada e uma postura robusta. Mas não se deixe enganar pelo exterior calmo: quando Lucas se dedica a algo, ele tryharda como ninguém. Seja no trabalho, na academia, ou em qualquer desafio, ele dá tudo de si e vai até o fim, sempre com aquela determinação que impressiona.",
     link: "https://www.instagram.com/sperandio_lucass?igsh=MWN2MjU1cHU3djc0YQ=="
   },
@@ -80,19 +80,19 @@ export const profiles: Profile[] = [
   },
   {
     name: "Chrystian Tomaz",
-    image: "https://placehold.co/400x400/333/FFF?text=Chrystian",
+    image: "/Imagens/chrystian.jpeg",
     description: "Chrystian Tomaz - Descrição provisória.",
     link: ""
   },
   {
     name: "Natan (Gordo)",
-    image: "https://placehold.co/400x400/333/FFF?text=Natan+Gordo",
+    image: "/Imagens/natan(gordo).jpeg",
     description: "Natan (Gordo) - Descrição provisória.",
     link: ""
   },
   {
     name: "Felipe Brito",
-    image: "https://placehold.co/400x400/333/FFF?text=Felipe",
+    image: "/Imagens/felipe.jpeg",
     description: "Felipe Brito - Descrição provisória.",
     link: ""
   }
