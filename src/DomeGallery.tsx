@@ -658,11 +658,19 @@ export default function DomeGallery({
         gap: 8px;
         pointer-events: auto;
       `;
+<<<<<<< HEAD
       
       let htmlContent = '';
       if (title) htmlContent += `<h2 style="font-size: 2rem; font-weight: bold; margin: 0;">${title}</h2>`;
       if (description) htmlContent += `<p style="font-size: 1rem; margin: 0; color: #e5e5e5; max-width: 600px;">${description}</p>`;
       
+=======
+
+      let htmlContent = '';
+      if (title) htmlContent += `<h2 style="font-size: 2rem; font-weight: bold; margin: 0;">${title}</h2>`;
+      if (description) htmlContent += `<p style="font-size: 1rem; margin: 0; color: #e5e5e5; max-width: 600px;">${description}</p>`;
+
+>>>>>>> cb373ee296044ff5600617e333fc3a06b11381af
       if (link) {
          htmlContent += `
           <a href="${link}" target="_blank" rel="noopener noreferrer" style="margin-top: 12px; display: inline-flex; align-items: center; gap: 8px; color: #E1306C; text-decoration: none; font-weight: 600;">
@@ -671,7 +679,11 @@ export default function DomeGallery({
           </a>
          `;
       }
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> cb373ee296044ff5600617e333fc3a06b11381af
       textOverlay.innerHTML = htmlContent;
       overlay.appendChild(textOverlay);
 
