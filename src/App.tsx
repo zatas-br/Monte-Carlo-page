@@ -1,5 +1,7 @@
 import { tw } from 'typewind';
 import DomeGallery from './DomeGallery';
+import Dock from './Dock';
+import { VscHome, VscArchive, VscAccount, VscSettingsGear } from "react-icons/vsc";
 
 interface Profile {
   name: string;
@@ -59,7 +61,7 @@ const profiles: Profile[] = [
   },
   {
     name: "Lucas Sperandio",
-    image: "", // Image missing in HTML source
+    image: "https://placehold.co/400x400/333/FFF?text=Lucas",
     description: "Lucas Sperandio é aquele cara tranquilo que todo mundo respeita. Com uma vibe serena e religiosa, ele tem uma aparência que lembra um lenhador, com a barba sempre bem cuidada e uma postura robusta. Mas não se deixe enganar pelo exterior calmo: quando Lucas se dedica a algo, ele tryharda como ninguém. Seja no trabalho, na academia, ou em qualquer desafio, ele dá tudo de si e vai até o fim, sempre com aquela determinação que impressiona.",
     link: "https://www.instagram.com/sperandio_lucass?igsh=MWN2MjU1cHU3djc0YQ=="
   },
@@ -80,43 +82,50 @@ const profiles: Profile[] = [
     image: "/Imagens/GabrielSant.jpeg",
     description: "Gabriel Santiago é o tipo de pessoa que deixa todo mundo sem saber o que esperar. Provavelmente gay, ele é conhecido pelos banhos intermináveis que deixam a galera impaciente. Agressivo e esquisito, ele tem um jeito peculiar de lidar com as coisas, sempre no seu próprio ritmo. O que mais chama atenção, porém, é sua paixão por mulheres gordas, algo que ele não esconde de ninguém. Gabriel é estranho, mas sempre autêntico!",
     link: "https://www.instagram.com/biel.sant1?igsh=MTgzMXBlMXZtajNteQ=="
+  },
+  {
+    name: "Chrystian Tomaz",
+    image: "https://placehold.co/400x400/333/FFF?text=Chrystian",
+    description: "Chrystian Tomaz - Descrição provisória.",
+    link: ""
+  },
+  {
+    name: "Natan (Gordo)",
+    image: "https://placehold.co/400x400/333/FFF?text=Natan+Gordo",
+    description: "Natan (Gordo) - Descrição provisória.",
+    link: ""
+  },
+  {
+    name: "Felipe Brito",
+    image: "https://placehold.co/400x400/333/FFF?text=Felipe",
+    description: "Felipe Brito - Descrição provisória.",
+    link: ""
   }
 ];
 
-const galleryImages = profiles
-  .filter(p => p.image !== "")
-  .map(p => ({
-    src: p.image,
-    alt: p.name
-  }));
+const galleryImages = profiles.map(p => ({
+  src: p.image,
+  alt: p.name,
+  title: p.name,
+  description: p.description,
+  link: p.link
+}));
 
 export default function App() {
+  const dockItems = [
+    { icon: <VscHome size={18} />, label: 'Home', onClick: () => window.location.reload() },
+    { icon: <VscArchive size={18} />, label: 'Archive', onClick: () => alert('Archive!') },
+    { icon: <VscAccount size={18} />, label: 'Profile', onClick: () => alert('Profile!') },
+    { icon: <VscSettingsGear size={18} />, label: 'Settings', onClick: () => alert('Settings!') },
+  ];
+
   return (
-    <div className={tw.font_sans.bg_gray_100.text_gray_800.min_h_screen.relative.pb_10.overflow_x_hidden}>
-      {/* Background Image */}
-      <div
-        className={tw.fixed.top_0.left_0.w_full.h_full.bg_cover.bg_center.bg_no_repeat.blur_sm}
-        style={{ backgroundImage: "url('/Imagens/imagemDeFundo.jpeg')", zIndex: -1 }}
-      />
+    <div className={tw.font_sans.bg_black.text_gray_200.h_screen.w_screen.relative.overflow_hidden}>
+      {/* Background Image - optional, keeping it but dimming or removing if pure black is desired. User said 'fundo pode ser preto', I'll keep the background image but maybe darker or just rely on bg-black if image fails/is removed. I'll keep it for texture but ensure bg-black is behind. */}
+      {/* Actually user said "fundo pode ser preto". I'll comment out the background image or make it very subtle/optional. I'll stick to black background as requested as primary. */}
 
-      {/* Header */}
-      <header className={tw.bg_neutral_800.text_white.p_5.flex.items_center.justify_between.mb_5.shadow_md}>
-        <div className={tw.flex.items_center.gap_4}>
-          <h1 className={tw.text_3xl.m_0.font_bold}>Monte Carlo</h1>
-          <img src="/Imagens/montanhas.png" alt="Ícone Monte Carlo" className={tw.h_12.w_12} />
-        </div>
-        <nav className={tw.grow.flex.justify_center}>
-          <ul className={tw.list_none.flex.gap_4.m_0.p_0}>
-            <li><a href="./home.html" className={tw.no_underline.text_white.text_xl.px_3.py_1.rounded.transition_colors.duration_300.hover(tw.bg_pink_500.text_gray_800)}>Home</a></li>
-            <li><a href="./html/timeLine.html" className={tw.no_underline.text_white.text_xl.px_3.py_1.rounded.transition_colors.duration_300.hover(tw.bg_pink_500.text_gray_800)}>TimeLine</a></li>
-            <li><a href="./achievement.html" className={tw.no_underline.text_white.text_xl.px_3.py_1.rounded.transition_colors.duration_300.hover(tw.bg_pink_500.text_gray_800)}>Realizações</a></li>
-            <li><a href="#contato" className={tw.no_underline.text_white.text_xl.px_3.py_1.rounded.transition_colors.duration_300.hover(tw.bg_pink_500.text_gray_800)}>Contato</a></li>
-          </ul>
-        </nav>
-      </header>
-
-      {/* Gallery Section */}
-      <div className={tw.w_full.relative.mb_10} style={{ height: '600px' }}>
+      {/* Main Animation */}
+      <div className={tw.w_full.h_full.relative}>
         <DomeGallery
           images={galleryImages}
           fit={0.8}
@@ -128,26 +137,16 @@ export default function App() {
         />
       </div>
 
-      {/* Container */}
-      <div className={tw.flex.flex_wrap.justify_center.gap_5.px_5.md(tw.px_0).pb_10}>
-        {profiles.map((profile, index) => (
-          <a key={index} href={profile.link} target="_blank" rel="noopener noreferrer" className={tw.no_underline.block}>
-            <div
-              className={`${tw.bg_white.rounded_lg.shadow_lg.flex.flex_col.md(tw.flex_row).items_center.md(tw.items_start).p_5.transition_transform.duration_300.overflow_hidden.box_border.shrink_0.relative} hover:-translate-y-1 hover:shadow-2xl`}
-              style={{ width: '350px', height: '220px' }}
-            >
-              {profile.image ? (
-                <img src={profile.image} alt={profile.name} className={tw.rounded_full.w_20.h_20.mr_0.md(tw.mr_5).mb_3.md(tw.mb_0).object_cover.shrink_0} />
-              ) : (
-                <div className={tw.rounded_full.w_20.h_20.bg_gray_300.mr_0.md(tw.mr_5).mb_3.md(tw.mb_0).shrink_0}></div>
-              )}
-              <div className={tw.flex_1.flex.flex_col.justify_between.max_h_full.overflow_y_auto.text_center.md(tw.text_left)}>
-                <h2 className={tw.text_2xl.mb_2.text_blue_600.break_words.font_bold}>{profile.name}</h2>
-                <p className={tw.text_base.leading_relaxed.text_gray_600.m_0}>{profile.description}</p>
-              </div>
-            </div>
-          </a>
-        ))}
+      {/* Dock */}
+      <div className={tw.absolute.bottom_5.left_0.w_full.flex.justify_center.z_50.pointer_events_none}>
+        <div className={tw.pointer_events_auto}>
+          <Dock
+            items={dockItems}
+            panelHeight={68}
+            baseItemSize={50}
+            magnification={70}
+          />
+        </div>
       </div>
     </div>
   );

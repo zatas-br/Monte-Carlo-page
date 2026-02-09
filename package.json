@@ -24,8 +24,10 @@
   "homepage": "https://github.com/zatas-br/Monte-Carlo-page#readme",
   "dependencies": {
     "@use-gesture/react": "^10.3.1",
+    "framer-motion": "^12.34.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-icons": "^5.5.0",
     "typewind": "^0.3.0"
   },
   "devDependencies": {
