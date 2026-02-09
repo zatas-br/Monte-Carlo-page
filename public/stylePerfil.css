@@ -1,0 +1,193 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: auto;
+    padding-bottom: 40px;
+    overflow-x: hidden; /* Evita rolagem horizontal indesejada */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    padding: 20px;
+    position: relative;
+    background: #f4f4f4; /* Define uma cor de fundo sólida para o corpo */
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que os cartões quebrem para a linha seguinte se necessário */
+    justify-content: center; /* Centraliza os cartões horizontalmente */
+    gap: 20px; /* Espaçamento entre os cartões */
+}
+
+a {
+    text-decoration: none; /* Remove sublinhado de todos os links */
+}
+
+.person-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: flex-start; /* Alinha a imagem e o texto no topo do cartão */
+    padding: 20px;
+    width: 350px; /* Define a largura fixa dos cartões */
+    height: 220px; /* Define uma altura fixa para garantir um formato retangular consistente */
+    transition: transform 0.3s, box-shadow 0.3s;
+    overflow: hidden; /* Garante que o conteúdo não ultrapasse os limites do cartão */
+    text-decoration: none;
+    flex-shrink: 0; /* Garante que os cartões não encolham */
+    box-sizing: border-box; /* Inclui padding e borda nas dimensões do cartão */
+    position: relative; /* Necessário para ajustar a posição dos elementos internos */
+}
+
+.person-card:hover {
+    transform: translateY(-5px); /* Efeito de elevação ao passar o mouse */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.person-image {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    margin-right: 20px; /* Espaçamento entre a imagem e o texto */
+    object-fit: cover; /* Garante que a imagem mantenha a proporção */
+    flex-shrink: 0; /* Garante que a imagem não encolha */
+}
+
+.person-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribui o espaço entre o título e o texto */
+    max-height: 160px; /* Define a altura máxima do conteúdo para que a rolagem funcione */
+    overflow-y: auto; /* Adiciona rolagem vertical se o conteúdo exceder a altura */
+    box-sizing: border-box; /* Inclui padding e borda nas dimensões do cartão */
+}
+
+.person-info h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #007BFF;
+    word-wrap: break-word; /* Garante que o texto longo quebre e não ultrapasse os limites do cartão */
+}
+
+.person-info p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #555;
+    margin-top: 0; /* Remove a margem superior do parágrafo */
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .container {
+        flex-direction: column; /* Alinha os cartões em uma coluna em telas menores */
+        align-items: center; /* Centraliza os cartões na coluna */
+        padding-left: 30px;
+    }
+    .person-card {
+        width: 90%; /* Ajusta a largura dos cartões em dispositivos menores */
+        height: auto; /* Permite que a altura se ajuste conforme necessário */
+        flex-direction: column; /* Alinha imagem e texto verticalmente em telas menores */
+        text-align: center; /* Centraliza o texto na coluna */
+    }
+
+    .person-image {
+        margin-bottom: 10px; /* Espaçamento entre a imagem e o texto em dispositivos menores */
+    }
+
+    .person-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center; /* Centraliza o texto dentro do cartão em dispositivos menores */
+        overflow: visible; /* Remove a rolagem vertical em dispositivos menores */
+    }
+}
+
+/* Imagem de fundo */
+body::before {
+    content: "";
+    position: fixed; /* Torna a imagem de fundo fixa para evitar deslocamento */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('./Imagens/imagemDeFundo.jpeg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: blur(6px);
+    z-index: -1; /* Garante que a imagem de fundo fique atrás do conteúdo */
+}
+
+/* Reset básico de margin e padding */
+body, ul {
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilo do cabeçalho */
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center; /* Alinha todos os itens verticalmente ao centro */
+    justify-content: space-between; /* Distribui o espaço entre o título, ícone e navegação */
+    margin-bottom: 20px;
+}
+
+header .header-left {
+    display: flex;
+    align-items: center; /* Alinha verticalmente o título e o ícone */
+    gap: 15px; /* Espaço entre o título e o ícone */
+}
+
+header h1 {
+    font-size: 2em;
+    margin: 0; /* Remove margem padrão */
+}
+
+header .MonteIcon {
+    height: 50px;
+    width: 50px;
+}
+
+nav {
+    flex-grow: 1; /* Faz com que o nav ocupe o máximo de espaço disponível */
+    display: flex;
+    justify-content: center; /* Centraliza as abas horizontalmente */
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px; /* Espaço entre as abas */
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.2em;
+    padding: 5px 10px; /* Adiciona um pouco de espaçamento ao redor do texto */
+    border-radius: 5px; /* Arredonda os cantos dos botões */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+nav ul li a:hover,
+nav ul li a.active {
+    background-color: #f0a; /* Cor de fundo ao passar o mouse ou quando ativo */
+    color: #333; /* Cor do texto quando ativo ou ao passar o mouse */
+}

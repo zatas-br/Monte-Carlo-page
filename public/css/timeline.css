@@ -1,0 +1,26 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.timeline {
+    width: 80%;
+    height: 80%;
+    position: relative;
+}
+
+.timeline svg {
+    width: 80%;
+    height: 80%;
+}
+
+.timeline-path {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.1);
+    stroke-width: 2;
+}

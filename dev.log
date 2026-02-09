@@ -7,3 +7,10 @@
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
+1:54:25 AM [vite] (client) hmr update /src/App.tsx, /src/index.css
+1:55:08 AM [vite] (client) hmr update /src/App.tsx, /src/index.css
+2:00:46 AM [vite] (client) hmr update /src/index.css
+2:03:08 AM [vite] (client) page reload public/home.html
+2:03:08 AM [vite] (client) page reload public/achievement.html
+2:03:08 AM [vite] (client) page reload public/html/timeLine.html
+2:03:38 AM [vite] (client) page reload public/achievement.html

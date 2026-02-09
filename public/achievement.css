@@ -1,0 +1,56 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilo para o corpo do site */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Estilo do contêiner principal */
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo do título principal */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #4CAF50;
+}
+
+/* Estilo dos subtítulos */
+h2 {
+    margin: 20px 0 10px;
+    font-size: 1.5em;
+    color: #333;
+}
+
+/* Estilo para a seção de troféus */
+.trophy-section {
+    margin-bottom: 30px;
+}
+
+/* Contêiner de imagens */
+.image-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Estilo das imagens */
+.image-container img {
+    width: 48%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}

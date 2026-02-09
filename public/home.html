@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monte Carlo - Welcome</title>
+    <link rel="stylesheet" href="stylesHome.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">Monte Carlo</div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Gallery</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+            <div class="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Bem-vindo(a) à Monte Carlo Web Page</h1>
+            <p>mais que um bairro, mais que amigos, aqui somos uma família.</p>
+            <a href="#" class="btn">Book Your Stay</a>
+        </div>
+    </section>
+
+    <section class="about">
+        <div class="about-container">
+            <div class="about-image"></div>
+            <div class="about-text">
+                <h2>Sobre Monte Carlo</h2>
+                <p>Monte Carlo é um bairro charmoso localizado na cidade de São Carlos-SP. Apesar de ser frequentemente confundido com o bairro vizinho, Cruzeiro do Sul, Monte Carlo tem sua própria identidade marcante. O bairro ganhou destaque mundial graças a um grupo de 'mulekes' que fizeram das ruas seu campo de futebol, deixando uma marca indelével na memória de todos que passaram por ali.</p>
+                <a href="#" class="btn">Ler Mais</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="services">
+        <h2>Our Premium Services</h2>
+        <div class="service-cards">
+            <div class="card">
+                <i class="fas fa-bed"></i>
+                <h3>Loc</h3>
+                <p>Mais do que apenas um bairro, Monte Carlo é um lugar onde a amizade e a comunidade se entrelaçam, criando laços que vão além das simples delimitações geográficas.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-utensils"></i>
+                <h3>Gourmet Dining</h3>
+                <p>Experience culinary excellence at our Michelin-starred restaurants, where each dish is a masterpiece.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-glass-cheers"></i>
+                <h3>Exclusive Events</h3>
+                <p>Attend world-class events, from private galas to exclusive parties, curated just for our guests.</p>
+            </div>
+            <div class="card">
+                <i class="fas fa-spa"></i>
+                <h3>Luxury Spa</h3>
+                <p>Rejuvenate your mind, body, and soul with our premium spa treatments, designed to pamper you.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="gallery">
+        <h2>Discover Monte Carlo</h2>
+        <div class="gallery-grid">
+            <div class="gallery-item"></div>
+            <div class="gallery-item"></div>
+            <div class="gallery-item"></div>
+            <div class="gallery-item"></div>
+            <div class="gallery-item"></div>
+            <div class="gallery-item"></div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+            </div>
+            <p>&copy; 2024 Monte Carlo. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const hamburger = document.querySelector('.hamburger-menu');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+        });
+    </script>
+</body>
+</html>

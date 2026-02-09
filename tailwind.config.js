@@ -1,7 +1,7 @@
-const { typewindTransforms } = require('typewind/transform');
+import { typewindTransforms } from 'typewind/transform';
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: {
     files: ['./src/**/*.{js,jsx,ts,tsx}'],
     transform: typewindTransforms,
