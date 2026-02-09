@@ -86,13 +86,13 @@ export const profiles: Profile[] = [
   },
   {
     name: "Natan (Gordo)",
-    image: "/Imagens/natan(gordo).jpeg",
+    image: "/Imagens/natan(gordo).png",
     description: "Natan (Gordo) - Descrição provisória.",
     link: ""
   },
   {
     name: "Felipe Brito",
-    image: "/Imagens/felipe.jpeg",
+    image: "/Imagens/felipe.png",
     description: "Felipe Brito - Descrição provisória.",
     link: ""
   }
