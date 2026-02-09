@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
 
-type ImageItem = string | { src: string; alt?: string };
+type ImageItem = string | { src: string; alt?: string; title?: string; description?: string; link?: string };
 
 type DomeGalleryProps = {
   images?: ImageItem[];
@@ -26,6 +26,9 @@ type DomeGalleryProps = {
 type ItemDef = {
   src: string;
   alt: string;
+  title?: string;
+  description?: string;
+  link?: string;
   x: number;
   y: number;
   sizeX: number;
@@ -106,7 +109,13 @@ function buildItems(pool: ImageItem[], seg: number): ItemDef[] {
     if (typeof image === 'string') {
       return { src: image, alt: '' };
     }
-    return { src: image.src || '', alt: image.alt || '' };
+    return {
+      src: image.src || '',
+      alt: image.alt || '',
+      title: image.title,
+      description: image.description,
+      link: image.link
+    };
   });
 
   const usedImages = Array.from({ length: totalSlots }, (_, i) => normalizedImages[i % normalizedImages.length]);
@@ -127,7 +136,10 @@ function buildItems(pool: ImageItem[], seg: number): ItemDef[] {
   return coords.map((c, i) => ({
     ...c,
     src: usedImages[i].src,
-    alt: usedImages[i].alt
+    alt: usedImages[i].alt,
+    title: usedImages[i].title,
+    description: usedImages[i].description,
+    link: usedImages[i].link
   }));
 }
 
@@ -622,6 +634,54 @@ export default function DomeGallery({
     img.alt = rawAlt;
     img.style.cssText = `width:100%; height:100%; object-fit:cover; filter:${grayscale ? 'grayscale(1)' : 'none'};`;
     overlay.appendChild(img);
+
+    // Add Text Overlay Logic
+    const title = parent.dataset.title;
+    const description = parent.dataset.description;
+    const link = parent.dataset.link;
+
+    if (title || description) {
+      const textOverlay = document.createElement('div');
+      textOverlay.style.cssText = `
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 24px;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        color: white;
+        z-index: 40;
+        opacity: 0;
+        transition: opacity 500ms ease 300ms;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        pointer-events: auto;
+      `;
+      
+      let htmlContent = '';
+      if (title) htmlContent += `<h2 style="font-size: 2rem; font-weight: bold; margin: 0;">${title}</h2>`;
+      if (description) htmlContent += `<p style="font-size: 1rem; margin: 0; color: #e5e5e5; max-width: 600px;">${description}</p>`;
+      
+      if (link) {
+         htmlContent += `
+          <a href="${link}" target="_blank" rel="noopener noreferrer" style="margin-top: 12px; display: inline-flex; align-items: center; gap: 8px; color: #E1306C; text-decoration: none; font-weight: 600;">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"></path></svg>
+            Instagram
+          </a>
+         `;
+      }
+      
+      textOverlay.innerHTML = htmlContent;
+      overlay.appendChild(textOverlay);
+
+      // Trigger fade in
+      requestAnimationFrame(() => {
+        textOverlay.style.opacity = '1';
+      });
+    }
+
+
     viewerRef.current!.appendChild(overlay);
     const tx0 = tileR.left - frameR.left;
     const ty0 = tileR.top - frameR.top;
@@ -804,6 +864,9 @@ export default function DomeGallery({
                   className="sphere-item absolute m-auto"
                   data-src={it.src}
                   data-alt={it.alt}
+                  data-title={it.title}
+                  data-description={it.description}
+                  data-link={it.link}
                   data-offset-x={it.x}
                   data-offset-y={it.y}
                   data-size-x={it.sizeX}
