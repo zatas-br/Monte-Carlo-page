@@ -1,5 +1,5 @@
-import React from 'react';
 import { tw } from 'typewind';
+import DomeGallery from './DomeGallery';
 
 interface Profile {
   name: string;
@@ -83,6 +83,13 @@ const profiles: Profile[] = [
   }
 ];
 
+const galleryImages = profiles
+  .filter(p => p.image !== "")
+  .map(p => ({
+    src: p.image,
+    alt: p.name
+  }));
+
 export default function App() {
   return (
     <div className={tw.font_sans.bg_gray_100.text_gray_800.min_h_screen.relative.pb_10.overflow_x_hidden}>
@@ -107,6 +114,19 @@ export default function App() {
           </ul>
         </nav>
       </header>
+
+      {/* Gallery Section */}
+      <div className={tw.w_full.relative.mb_10} style={{ height: '600px' }}>
+        <DomeGallery
+          images={galleryImages}
+          fit={0.8}
+          minRadius={300}
+          maxVerticalRotationDeg={10}
+          segments={34}
+          dragDampening={2}
+          grayscale={false}
+        />
+      </div>
 
       {/* Container */}
       <div className={tw.flex.flex_wrap.justify_center.gap_5.px_5.md(tw.px_0).pb_10}>
