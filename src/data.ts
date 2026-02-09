@@ -108,7 +108,7 @@ export const historyContent = {
     "Com o tempo, as traves improvisadas deram lugar a monitores e teclados, o asfalto virou código e as estratégias de jogo se transformaram em táticas no Valorant e projetos de desenvolvimento. Mas a essência permaneceu a mesma.",
     "O Monte Carlo é, e sempre será, aquele time de amigos que começou na rua. A tecnologia mudou, os desafios cresceram, mas o espírito de união que nasceu no futebol de rua continua sendo a nossa maior força. Hoje, não jogamos apenas pela vitória no servidor, mas pelo sucesso uns dos outros na vida."
   ],
-  image: "https://placehold.co/800x400/222/FFF?text=Futebol+de+Rua+Monte+Carlo"
+  image: "Imagens/monte-carlos-historia.jpeg"
 };
 
 export interface Event {
