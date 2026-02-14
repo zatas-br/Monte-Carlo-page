@@ -308,6 +308,25 @@ export default function DomeGallery({
     applyTransform(rotationRef.current.x, rotationRef.current.y);
   }, []);
 
+  // Auto-rotation (Idle Animation)
+  useEffect(() => {
+    let animationFrameId: number;
+
+    const loop = () => {
+      // Rotate only if not interacting (dragging, opening, or coasting)
+      if (!draggingRef.current && !openingRef.current && !inertiaRAF.current && !focusedElRef.current) {
+        // Move slightly to the right (rotate left/items move right? Try +Y)
+        // Adjust speed here.
+        rotationRef.current.y += 0.02;
+        applyTransform(rotationRef.current.x, rotationRef.current.y);
+      }
+      animationFrameId = requestAnimationFrame(loop);
+    };
+
+    animationFrameId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
   const stopInertia = useCallback(() => {
     if (inertiaRAF.current) {
       cancelAnimationFrame(inertiaRAF.current);

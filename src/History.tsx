@@ -211,6 +211,23 @@ export default function History() {
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/30 rounded-full pointer-events-none"></div>
                   <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/30 pointer-events-none"></div>
 
+                  {/* Ghost Slots (Fixed Positions) */}
+                  {Array.from({ length: 11 }).map((_, index) => {
+                    const pos = getPositionStyle(index);
+                    return (
+                      <motion.div
+                        layout
+                        key={`ghost-${index}`}
+                        className="absolute -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 z-0 pointer-events-none flex items-center justify-center"
+                        initial={false}
+                        animate={pos}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      >
+                         <div className="w-2 h-2 rounded-full bg-white/10"></div>
+                      </motion.div>
+                    );
+                  })}
+
                   {fieldPlayers.map((player, index) => {
                     const pos = getPositionStyle(index);
                     return (
@@ -335,7 +352,7 @@ export default function History() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden border border-gray-800 shadow-2xl"
+              className="relative max-h-[90vh] aspect-[9/16] w-full max-w-md bg-black rounded-2xl overflow-hidden border border-gray-800 shadow-2xl flex flex-col"
             >
               <button
                 onClick={() => setSelectedVideo(null)}
@@ -344,12 +361,12 @@ export default function History() {
                 <VscClose size={24} />
               </button>
               
-              <div className="relative pt-[56.25%]">
+              <div className="flex-1 w-full h-full relative">
                 <iframe
                   src={`https://player.vimeo.com/video/${selectedVideo}?badge=0&autopause=0&player_id=0&app_id=58479`}
                   frameBorder="0"
                   allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
-                  className="absolute top-0 left-0 w-full h-full"
+                  className="w-full h-full"
                   title="Retrospectiva"
                 ></iframe>
               </div>
