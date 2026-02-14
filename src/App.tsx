@@ -6,8 +6,9 @@ import History from './History';
 import Events from './Events';
 import FlowingMenu from './FlowingMenu';
 import { GridScan } from './GridScan';
-import { VscHome, VscArchive, VscCalendar, VscLibrary } from "react-icons/vsc";
-import { profiles } from './data';
+import { VscHome, VscArchive, VscCalendar, VscLibrary, VscClose } from "react-icons/vsc";
+import { profiles, retrospectives } from './data';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const galleryImages = profiles.map(p => ({
   src: p.image,
@@ -17,16 +18,16 @@ const galleryImages = profiles.map(p => ({
   link: p.link
 }));
 
-const mediaItems = [
-  { link: '#', text: 'Retrospectiva 2021', image: 'https://picsum.photos/600/400?random=1' },
-  { link: '#', text: 'Retrospectiva 2022', image: 'https://picsum.photos/600/400?random=2' },
-  { link: '#', text: 'Retrospectiva 2023', image: 'https://picsum.photos/600/400?random=3' },
-  { link: '#', text: 'Retrospectiva 2024', image: 'https://picsum.photos/600/400?random=4' },
-  { link: '#', text: 'Retrospectiva 2025', image: 'https://picsum.photos/600/400?random=5' }
-];
-
 export default function App() {
   const [currentView, setCurrentView] = useState<'home' | 'history' | 'events' | 'media'>('home');
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+
+  const mediaItems = retrospectives.map(retro => ({
+    link: '#',
+    text: `Retrospectiva ${retro.year}`,
+    image: `https://picsum.photos/600/400?random=${retro.year}`,
+    onClick: () => setSelectedVideo(retro.videoId)
+  }));
 
   const dockItems = [
     { icon: <VscHome size={18} />, label: 'Home', onClick: () => setCurrentView('home') },
@@ -88,6 +89,37 @@ export default function App() {
           />
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedVideo && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+            <div className="absolute inset-0 -z-10" onClick={() => setSelectedVideo(null)}></div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden border border-gray-800 shadow-2xl"
+            >
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="absolute top-4 right-4 p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors z-10 text-white"
+              >
+                <VscClose size={24} />
+              </button>
+              
+              <div className="relative pt-[56.25%]">
+                <iframe
+                  src={`https://player.vimeo.com/video/${selectedVideo}?badge=0&autopause=0&player_id=0&app_id=58479`}
+                  frameBorder="0"
+                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
+                  className="absolute top-0 left-0 w-full h-full"
+                  title="Retrospectiva"
+                ></iframe>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

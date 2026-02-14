@@ -5,6 +5,7 @@ interface MenuItemData {
   link: string;
   text: string;
   image: string;
+  onClick?: () => void;
 }
 
 interface FlowingMenuProps {
@@ -24,6 +25,7 @@ interface MenuItemProps extends MenuItemData {
   marqueeTextColor: string;
   borderColor: string;
   isFirst: boolean;
+  onClick?: () => void;
 }
 
 const FlowingMenu: React.FC<FlowingMenuProps> = ({
@@ -64,7 +66,8 @@ const MenuItem: React.FC<MenuItemProps> = ({
   marqueeBgColor,
   marqueeTextColor,
   borderColor,
-  isFirst
+  isFirst,
+  onClick
 }) => {
   const itemRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
@@ -148,6 +151,13 @@ const MenuItem: React.FC<MenuItemProps> = ({
       .to(marqueeInnerRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0);
   };
 
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (onClick) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <div
       className="flex-1 relative overflow-hidden text-center"
@@ -157,6 +167,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
       <a
         className="flex items-center justify-center h-full relative cursor-pointer uppercase no-underline font-semibold text-[4vh]"
         href={link}
+        onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         style={{ color: textColor }}
