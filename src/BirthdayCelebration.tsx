@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import Confetti from 'react-confetti';
 import { profiles } from './data';
 import { createPortal } from 'react-dom';
-import { tw } from 'typewind';
 import { VscClose } from 'react-icons/vsc';
 
 export default function BirthdayCelebration() {
@@ -21,8 +20,8 @@ export default function BirthdayCelebration() {
   }, []);
 
   useEffect(() => {
-    const today = new Date();
-    const currentYear = today.getFullYear();
+    const now = new Date();
+    const currentYear = now.getFullYear();
 
     const todayProfiles: typeof profiles = [];
     const upcomingList: typeof profiles = [];
@@ -33,23 +32,28 @@ export default function BirthdayCelebration() {
       const month = parseInt(monthStr) - 1; // JS months are 0-indexed
 
       // Check for Today
-      if (today.getDate() === day && today.getMonth() === month) {
+      if (now.getDate() === day && now.getMonth() === month) {
         todayProfiles.push(profile);
       }
 
       // Check for Upcoming (within 12 hours)
-      // Create date object for this year's birthday
-      let birthdayDate = new Date(currentYear, month, day);
+      // Construct next birthday date (at 00:00:00)
+      let nextBirthday = new Date(currentYear, month, day);
       
-      // If birthday passed this year, look at next year (though for 12h check, it implies it's close, so likely this year or very early next year if today is Dec 31)
-      if (birthdayDate.getTime() < today.getTime() - 24 * 60 * 60 * 1000) { // If passed by more than a day
-         birthdayDate = new Date(currentYear + 1, month, day);
+      // If the birthday (at 00:00:00) is in the past relative to now, 
+      // it means either it's today (and now is > 00:00) or it was earlier this year.
+      // In both cases, for the purpose of "upcoming", we look at next year.
+      // EXCEPT: If it is today, we don't care about "upcoming" logic because "todayProfiles" handles it.
+      // So pushing it to next year is fine.
+      if (nextBirthday < now) {
+         nextBirthday.setFullYear(currentYear + 1);
       }
 
-      const diffMs = birthdayDate.getTime() - today.getTime();
+      const diffMs = nextBirthday.getTime() - now.getTime();
       const diffHours = diffMs / (1000 * 60 * 60);
 
-      // If within 12 hours (and positive, meaning in the future)
+      // If within 12 hours and not today (implied by the logic above pushing today's 00:00 to next year if now > 00:00)
+      // Actually, if it's 11 PM today, and birthday is tomorrow, diff is 1 hour. Correct.
       if (diffHours > 0 && diffHours <= 12) {
         upcomingList.push(profile);
       }
@@ -136,7 +140,7 @@ export default function BirthdayCelebration() {
                <span className="text-2xl">🎂</span>
                <div>
                   <p className="text-white font-bold text-sm sm:text-base">
-                     Fique ligado! Aniversário de <span className="text-yellow-400">{upcomingProfiles.map(p => p.name).join(', ')}</span> está chegando!
+                     Fique ligado! Falta pouco para o aniversário de <span className="text-yellow-400">{upcomingProfiles.map(p => p.name).join(', ')}</span>!
                   </p>
                </div>
             </div>

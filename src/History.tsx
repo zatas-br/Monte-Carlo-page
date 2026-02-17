@@ -1,6 +1,6 @@
 import { tw } from 'typewind';
 import { historyContent, profiles, socialLinks, retrospectives, rankingCategories } from './data';
-import { FaInstagram, FaMapMarkerAlt, FaTrophy, FaQuestion } from 'react-icons/fa';
+import { FaInstagram, FaMapMarkerAlt, FaTrophy, FaQuestion, FaFutbol } from 'react-icons/fa';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
@@ -8,6 +8,7 @@ import ProfileCard from './ProfileCard';
 import { VscClose } from 'react-icons/vsc';
 
 type Formation = '4-3-3' | '4-4-2' | '3-5-2';
+type Mode = 'Campo' | 'Futsal';
 
 export default function History() {
   const [showSoccerField, setShowSoccerField] = useState(false);
@@ -16,6 +17,8 @@ export default function History() {
   const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [formation, setFormation] = useState<Formation>('4-3-3');
+  const [mode, setMode] = useState<Mode>('Campo');
+  
   // State to manage swapping. using an array of profile indices.
   // 0-10 are field positions, 11+ are reserves.
   const [playerOrder, setPlayerOrder] = useState<number[]>(Array.from({ length: profiles.length }, (_, i) => i));
@@ -24,13 +27,25 @@ export default function History() {
   const [selectedCategory, setSelectedCategory] = useState<keyof typeof rankingCategories>('Zoação / Habilidades');
   const [selectedTheme, setSelectedTheme] = useState<string>(rankingCategories['Zoação / Habilidades'][0]);
 
-  // 0: GK, 1-4: Defenders, 5-7: Midfielders, 8-10: Forwards, 11+: Reserves
-  const fieldPlayers = playerOrder.slice(0, 11).map(i => profiles[i]);
-  const benchPlayers = playerOrder.slice(11).map(i => profiles[i]);
+  // Logic for Futsal (5 players) vs Field (11 players)
+  const startersCount = mode === 'Campo' ? 11 : 5;
+  
+  const fieldPlayers = playerOrder.slice(0, startersCount).map(i => profiles[i]);
+  const benchPlayers = playerOrder.slice(startersCount).map(i => profiles[i]);
 
   const getPositionStyle = (index: number) => {
     // GK is always index 0
     if (index === 0) return { top: '85%', left: '50%' };
+
+    if (mode === 'Futsal') {
+      // Futsal 1-2-1 or 2-2 logic (Index 1-4)
+      // Fixed simple formation: 1-2-1
+      if (index === 1) return { top: '65%', left: '25%' }; // Ala Esq
+      if (index === 2) return { top: '65%', left: '75%' }; // Ala Dir
+      if (index === 3) return { top: '40%', left: '50%' }; // Fixo/Meio
+      if (index === 4) return { top: '20%', left: '50%' }; // Pivo
+      return { top: '0', left: '0' };
+    }
 
     if (formation === '4-3-3') {
       // Defenders (4)
@@ -266,24 +281,24 @@ export default function History() {
                 <VscClose size={24} />
               </button>
 
-              {/* Sidebar (Categories & Themes) */}
-              <div className="w-full md:w-1/3 bg-gray-900/50 border-b md:border-b-0 md:border-r border-white/10 flex flex-col h-1/3 md:h-full">
-                <div className="p-6 border-b border-white/10">
-                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              {/* Sidebar (Categories & Themes) - Improved Mobile Layout */}
+              <div className="w-full md:w-1/3 bg-gray-900/50 border-b md:border-b-0 md:border-r border-white/10 flex flex-col md:h-full max-h-[40vh] md:max-h-full">
+                <div className="p-4 md:p-6 border-b border-white/10">
+                   <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
                      <FaTrophy className="text-yellow-500" /> Rankings
                    </h2>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                <div className="flex-1 overflow-x-auto md:overflow-x-hidden overflow-y-auto p-4 flex md:block gap-4 md:gap-0 md:space-y-6 scrollbar-hide">
                   {Object.keys(rankingCategories).map((category) => (
-                    <div key={category}>
-                      <h3 className="text-purple-400 font-bold mb-2 uppercase text-sm tracking-wider">{category}</h3>
+                    <div key={category} className="flex-shrink-0 w-64 md:w-auto">
+                      <h3 className="text-purple-400 font-bold mb-2 uppercase text-xs md:text-sm tracking-wider">{category}</h3>
                       <div className="space-y-1 pl-2">
                         {rankingCategories[category as keyof typeof rankingCategories].map((theme) => (
                            <button
                              key={theme}
                              onClick={() => setSelectedTheme(theme)}
-                             className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
+                             className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all whitespace-normal ${
                                selectedTheme === theme 
                                  ? 'bg-purple-600/20 text-purple-200 border border-purple-500/30' 
                                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
@@ -300,7 +315,7 @@ export default function History() {
 
               {/* Main Content (List) */}
               <div className="flex-1 overflow-y-auto bg-black/20 relative p-4 md:p-8 h-2/3 md:h-full no-scrollbar">
-                <h3 className="text-3xl font-bold text-white mb-6 text-center md:text-left sticky top-0 bg-black/90 md:bg-transparent z-10 py-2">
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center md:text-left sticky top-0 bg-black/90 md:bg-transparent z-10 py-2">
                   {selectedTheme}
                 </h3>
                 
@@ -363,52 +378,94 @@ export default function History() {
                   <VscClose size={24} />
                 </button>
 
-                <h2 className="text-3xl font-bold text-white mb-6 mt-8">Escalação Monte Carlo</h2>
+                <h2 className="text-3xl font-bold text-white mt-8 mb-4">Escalação Monte Carlo</h2>
 
-                {/* Formation Selector */}
-                <div className="flex gap-4 mb-8">
-                  {(['4-3-3', '4-4-2', '3-5-2'] as Formation[]).map((fmt) => (
-                    <button
-                      key={fmt}
-                      onClick={() => setFormation(fmt)}
-                      className={`px-4 py-2 rounded-full font-bold transition-all ${
-                        formation === fmt
-                          ? 'bg-purple-600 text-white shadow-lg scale-105'
-                          : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                      }`}
-                    >
-                      {fmt}
-                    </button>
-                  ))}
+                {/* Mode Selector (Campo vs Futsal) */}
+                <div className="flex gap-4 mb-4">
+                   <button
+                     onClick={() => setMode('Campo')}
+                     className={`px-4 py-2 rounded-full font-bold transition-all ${
+                       mode === 'Campo' 
+                         ? 'bg-green-600 text-white' 
+                         : 'bg-gray-800 text-gray-400'
+                     }`}
+                   >
+                     Campo (11)
+                   </button>
+                   <button
+                     onClick={() => setMode('Futsal')}
+                     className={`px-4 py-2 rounded-full font-bold transition-all flex items-center gap-2 ${
+                       mode === 'Futsal' 
+                         ? 'bg-blue-600 text-white' 
+                         : 'bg-gray-800 text-gray-400'
+                     }`}
+                   >
+                     <FaFutbol /> Futsal (5)
+                   </button>
                 </div>
+
+                {/* Formation Selector (Only for Campo) */}
+                {mode === 'Campo' && (
+                  <div className="flex gap-4 mb-8">
+                    {(['4-3-3', '4-4-2', '3-5-2'] as Formation[]).map((fmt) => (
+                      <button
+                        key={fmt}
+                        onClick={() => setFormation(fmt)}
+                        className={`px-4 py-2 rounded-full font-bold transition-all ${
+                          formation === fmt
+                            ? 'bg-purple-600 text-white shadow-lg scale-105'
+                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        }`}
+                      >
+                        {fmt}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className="relative w-full max-w-6xl flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8 pt-4">
                   
                   {/* Field */}
                   <div 
-                    className="relative w-full max-w-lg aspect-[2/3] bg-green-700 rounded-xl border-4 border-white/20 shadow-2xl overflow-hidden flex-shrink-0 z-0"
+                    className={`relative w-full max-w-lg bg-green-700 rounded-xl border-4 border-white/20 shadow-2xl overflow-hidden flex-shrink-0 z-0 transition-all duration-500
+                      ${mode === 'Futsal' ? 'aspect-[3/4] bg-blue-800' : 'aspect-[2/3]'}
+                    `}
                     style={{
-                      backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255,255,255,0.05) 50px, transparent 51px), repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.05) 50px, transparent 51px)',
+                      backgroundImage: mode === 'Futsal' 
+                        ? 'none' // Blue hard court
+                        : 'repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255,255,255,0.05) 50px, transparent 51px), repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.05) 50px, transparent 51px)',
                       backgroundSize: '100% 100%'
                     }}
                   >
-                    {/* Simple Grass Texture (Gradient) */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-green-800/50 to-green-600/50"></div>
-
-                    {/* Field Markings */}
-                    <div className="absolute inset-0 border-2 border-white/30 m-4 rounded-lg pointer-events-none"></div>
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-16 border-b-2 border-x-2 border-white/30 rounded-b-lg pointer-events-none"></div>
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-16 border-t-2 border-x-2 border-white/30 rounded-t-lg pointer-events-none"></div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/30 rounded-full pointer-events-none"></div>
-                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/30 pointer-events-none"></div>
+                    {/* Texture/Markings */}
+                    {mode === 'Campo' ? (
+                        <>
+                            <div className="absolute inset-0 bg-gradient-to-b from-green-800/50 to-green-600/50"></div>
+                            <div className="absolute inset-0 border-2 border-white/30 m-4 rounded-lg pointer-events-none"></div>
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-16 border-b-2 border-x-2 border-white/30 rounded-b-lg pointer-events-none"></div>
+                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-16 border-t-2 border-x-2 border-white/30 rounded-t-lg pointer-events-none"></div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-white/30 rounded-full pointer-events-none"></div>
+                            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/30 pointer-events-none"></div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Futsal Court Markings */}
+                            <div className="absolute inset-0 bg-blue-900/40"></div>
+                            <div className="absolute inset-0 border-2 border-yellow-400/50 m-4 pointer-events-none"></div>
+                            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-yellow-400/50 pointer-events-none"></div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border-2 border-yellow-400/50 rounded-full pointer-events-none"></div>
+                            {/* Goal Areas */}
+                            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-1/2 h-24 border-b-2 border-x-2 border-yellow-400/50 rounded-b-xl pointer-events-none"></div>
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-1/2 h-24 border-t-2 border-x-2 border-yellow-400/50 rounded-t-xl pointer-events-none"></div>
+                        </>
+                    )}
 
                     {/* Ghost Slots (Fixed Positions) */}
-                    {Array.from({ length: 11 }).map((_, index) => {
+                    {Array.from({ length: startersCount }).map((_, index) => {
                       const pos = getPositionStyle(index);
                       return (
                         <motion.div
                           key={`ghost-${index}`}
-                          // Removed CSS translate classes, added Framer props
                           className="absolute w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 z-0 pointer-events-none flex items-center justify-center"
                           initial={{ ...pos, x: '-50%', y: '-50%' }}
                           animate={{ ...pos, x: '-50%', y: '-50%' }}
@@ -423,24 +480,18 @@ export default function History() {
                       const pos = getPositionStyle(index);
                       return (
                         <motion.div
-                          key={`${player.name}-${index}`} // Key by player + index to reset drag offset on swap
-                          // Removed layoutId to prevent position drifting issues
-                          // Removed CSS translate classes (-translate-x-1/2 -translate-y-1/2) to prevent drift
+                          key={`${player.name}-${index}`} 
                           className="absolute flex flex-col items-center cursor-pointer z-10 touch-none"
-                          // Use Framer Motion's x/y for centering, ensuring it persists during layout transitions
                           initial={{ x: '-50%', y: '-50%' }}
                           animate={{ ...pos, x: '-50%', y: '-50%' }}
-                          // Drag Logic
                           drag
                           dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                           dragElastic={0.1}
-                          // Use higher z-index while dragging
                           whileDrag={{ zIndex: 100, scale: 1.1 }}
                           onDragEnd={(_, info) => {
                             const dropX = info.point.x;
                             const dropY = info.point.y;
                             
-                            // Use elementsFromPoint to find targets UNDER the dragged element
                             const elementsUnder = document.elementsFromPoint(dropX, dropY);
                             const targetDiv = elementsUnder.find(el => {
                               const targetIndexAttr = el.closest('[data-player-index]')?.getAttribute('data-player-index');
@@ -451,15 +502,13 @@ export default function History() {
                               const targetIndex = parseInt(targetDiv.getAttribute('data-player-index') || '-1');
 
                               if (targetIndex !== -1 && targetIndex !== index) {
-                                // Swap in playerOrder
                                 const newOrder = [...playerOrder];
                                 [newOrder[index], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[index]];
                                 setPlayerOrder(newOrder);
                               }
                             }
                           }}
-                          data-player-index={index} // Store index for lookup
-                          
+                          data-player-index={index} 
                           transition={{ type: "spring", stiffness: 300, damping: 30 }}
                           onClick={() => setSelectedPlayer(player)}
                         >
@@ -484,8 +533,8 @@ export default function History() {
                     <h3 className="text-2xl font-bold text-white mb-4 text-center lg:text-left">Reservas</h3>
                     <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-1 gap-4 max-h-[60vh] overflow-y-auto pr-2 no-scrollbar">
                       {benchPlayers.map((player, index) => {
-                        // Adjust index for playerOrder (reserves start at 11)
-                        const realIndex = 11 + index;
+                        // Adjust index for playerOrder (reserves start after starters)
+                        const realIndex = startersCount + index;
                         return (
                           <motion.div
                             key={`${player.name}-${realIndex}`}
@@ -493,7 +542,6 @@ export default function History() {
                             className="bg-gray-800/50 p-2 rounded-xl border border-gray-700 flex items-center gap-3 cursor-pointer hover:bg-gray-700/50 transition-colors touch-none relative"
                             onClick={() => setSelectedPlayer(player)}
                             whileHover={{ scale: 1.02 }}
-                            // Enable dragging for reserves too (to swap with field)
                             drag
                             dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                             dragElastic={0.1}
@@ -510,7 +558,7 @@ export default function History() {
 
                               if (targetDiv) {
                                 const targetIndex = parseInt(targetDiv.getAttribute('data-player-index') || '-1');
-                                // Allow swapping with field players (0-10) or other reserves (11+)
+                                // Allow swapping with any slot (0 to end)
                                 if (targetIndex !== -1 && targetIndex !== realIndex) {
                                   const newOrder = [...playerOrder];
                                   [newOrder[realIndex], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[realIndex]];

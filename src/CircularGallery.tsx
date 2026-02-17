@@ -534,21 +534,15 @@ class App {
     const dist = Math.sqrt(Math.pow(endX - this.clickStartX, 2) + Math.pow(endY - this.clickStartY, 2));
     
     if (dist < 10) {
-      // It's a click, find which item is centered
       if (this.onItemClick && this.medias && this.medias[0]) {
+        // Calculate the closest item to the center/current scroll position
         const width = this.medias[0].width;
-        // Calculate the current index based on scroll position (centered)
-        // scroll.target is negative when moving right, positive left... wait, logic check
-        // If we want the clicked item, we need to know WHERE the click happened, but in 3D canvas it's hard.
-        // Alternative: Just activate the CENTERED item on click? Or assume we tap anywhere to open centered?
-        // Let's go with opening the item currently focused/centered.
-        
-        // Alternatively, calculate which item corresponds to the current scroll position.
-        const normalizedScroll = -this.scroll.target;
-        const itemIndex = Math.round(normalizedScroll / width);
-        // Map back to original array length (since we duplicated items)
+        // Determine the index that is currently "active" or centered based on scroll position
+        const itemIndex = Math.round(Math.abs(this.scroll.target) / width);
+        // Map back to original array length (since we duplicated items for infinite loop)
         const originalLength = this.mediasImages.length / 2;
-        const realIndex = ((itemIndex % originalLength) + originalLength) % originalLength;
+        // Normalize the index to be within 0 to originalLength-1
+        const realIndex = itemIndex % originalLength;
         
         this.onItemClick(realIndex);
       }
@@ -606,12 +600,12 @@ class App {
     this.boundOnTouchMove = this.onTouchMove.bind(this);
     this.boundOnTouchUp = this.onTouchUp.bind(this);
     window.addEventListener('resize', this.boundOnResize);
-    window.addEventListener('mousewheel', this.boundOnWheel);
-    window.addEventListener('wheel', this.boundOnWheel);
-    window.addEventListener('mousedown', this.boundOnTouchDown);
+    this.container.addEventListener('mousewheel', this.boundOnWheel);
+    this.container.addEventListener('wheel', this.boundOnWheel);
+    this.container.addEventListener('mousedown', this.boundOnTouchDown);
     window.addEventListener('mousemove', this.boundOnTouchMove);
     window.addEventListener('mouseup', this.boundOnTouchUp);
-    window.addEventListener('touchstart', this.boundOnTouchDown);
+    this.container.addEventListener('touchstart', this.boundOnTouchDown);
     window.addEventListener('touchmove', this.boundOnTouchMove);
     window.addEventListener('touchend', this.boundOnTouchUp);
   }
@@ -619,12 +613,12 @@ class App {
   destroy() {
     window.cancelAnimationFrame(this.raf);
     window.removeEventListener('resize', this.boundOnResize);
-    window.removeEventListener('mousewheel', this.boundOnWheel);
-    window.removeEventListener('wheel', this.boundOnWheel);
-    window.removeEventListener('mousedown', this.boundOnTouchDown);
+    this.container.removeEventListener('mousewheel', this.boundOnWheel);
+    this.container.removeEventListener('wheel', this.boundOnWheel);
+    this.container.removeEventListener('mousedown', this.boundOnTouchDown);
     window.removeEventListener('mousemove', this.boundOnTouchMove);
     window.removeEventListener('mouseup', this.boundOnTouchUp);
-    window.removeEventListener('touchstart', this.boundOnTouchDown);
+    this.container.removeEventListener('touchstart', this.boundOnTouchDown);
     window.removeEventListener('touchmove', this.boundOnTouchMove);
     window.removeEventListener('touchend', this.boundOnTouchUp);
     if (this.renderer && this.renderer.gl && this.renderer.gl.canvas.parentNode) {

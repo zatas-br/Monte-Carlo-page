@@ -10,7 +10,10 @@ import {
   isSameDay, 
   addMonths, 
   subMonths, 
-  parseISO 
+  parseISO,
+  isWithinInterval,
+  startOfDay,
+  endOfDay
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { profiles, events } from './data';
@@ -41,9 +44,6 @@ export default function Calendar({ onEventClick }: CalendarProps) {
     end: endDate,
   });
 
-  // Collect events for the selected date to display details
-  const selectedEvents = [];
-  
   // Helper to find events for a specific day
   const getEventsForDay = (day: Date) => {
     const dayEvents = [];
@@ -63,11 +63,17 @@ export default function Calendar({ onEventClick }: CalendarProps) {
     // Check General Events
     events.forEach(event => {
        // Only process if date format is YYYY-MM-DD (ISO)
-       // Some events have "Passado" text, skip those or handle them if they have a date property
        if (event.date.includes('-')) {
-          const eventDate = parseISO(event.date);
-          // Check if same day and month and year (or ignore year for recurring? usually events are specific)
-          if (isSameDay(eventDate, day)) {
+          const eventStart = parseISO(event.date);
+          const eventEnd = event.endDate ? parseISO(event.endDate) : eventStart;
+
+          // Check if day is within the interval [start, end]
+          // We normalize to start of day to avoid time issues
+          const checkDay = startOfDay(day);
+          const s = startOfDay(eventStart);
+          const e = endOfDay(eventEnd);
+
+          if (isWithinInterval(checkDay, { start: s, end: e })) {
              dayEvents.push({
                type: 'event',
                title: event.title,
@@ -83,7 +89,7 @@ export default function Calendar({ onEventClick }: CalendarProps) {
   const activeEvents = getEventsForDay(selectedDate);
 
   return (
-    <div className="w-full h-full flex flex-col bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 overflow-hidden">
+    <div className="w-full h-full flex flex-col bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 overflow-hidden select-none">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-black/40">
         <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-full transition-colors text-white">
@@ -103,7 +109,7 @@ export default function Calendar({ onEventClick }: CalendarProps) {
       </div>
 
       {/* Days Grid */}
-      <div className="grid grid-cols-7 flex-1 overflow-y-auto auto-rows-fr">
+      <div className="grid grid-cols-7 flex-1 overflow-y-auto auto-rows-fr no-scrollbar">
         {dayList.map((day, i) => {
           const dayEvents = getEventsForDay(day);
           const isSelected = isSameDay(day, selectedDate);
@@ -152,17 +158,27 @@ export default function Calendar({ onEventClick }: CalendarProps) {
             {activeEvents.map((ev, idx) => (
               <div 
                 key={idx} 
-                className={`p-3 rounded-lg border flex items-center gap-3 ${
+                className={`p-3 rounded-lg border flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity ${
                   ev.type === 'birthday' 
                     ? 'bg-pink-500/10 border-pink-500/30 text-pink-200' 
                     : 'bg-green-500/10 border-green-500/30 text-green-200'
                 }`}
+                onClick={() => {
+                  if (onEventClick && ev.type === 'event') onEventClick(ev);
+                }}
               >
                 <span className="text-xl">{ev.type === 'birthday' ? '🎂' : '📅'}</span>
                 <div>
                   <p className="font-bold text-sm">{ev.title}</p>
                   {ev.type === 'event' && (
-                     <p className="text-xs opacity-70">Clique para ver detalhes do evento</p>
+                     <p className="text-xs opacity-70">
+                       {ev.data.endDate ? 
+                         `${format(parseISO(ev.data.date), 'dd/MM')} - ${format(parseISO(ev.data.endDate), 'dd/MM')}` : 
+                         'Evento de um dia'}
+                     </p>
+                  )}
+                   {ev.type === 'birthday' && (
+                     <p className="text-xs opacity-70">{ev.data.age + 1} anos (em breve)</p>
                   )}
                 </div>
               </div>

@@ -490,7 +490,8 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
             transition: 'transform 1s ease',
             transform: 'translateZ(0) rotateX(0deg) rotateY(0deg)',
             background: 'rgba(0, 0, 0, 0.9)',
-            backfaceVisibility: 'hidden'
+            backfaceVisibility: 'hidden',
+            containerType: 'size' // Using CSS container queries just in case, but relying on relative sizing
           }}
           onMouseEnter={e => {
             e.currentTarget.style.transition = 'none';
@@ -526,59 +527,61 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
             {isFifaCard ? (
                 // FIFA Card Content
                 <div 
-                   className="relative w-full h-full p-6 flex flex-col pointer-events-none z-[10]"
-                   style={{ transform: 'translateZ(20px)' }}
+                   className="relative w-full h-full p-6 flex flex-col pointer-events-none z-[10] select-none"
+                   style={{ transform: 'translateZ(30px)' }}
                 >
                    {/* Top Left: Rating & Position */}
-                   <div className="absolute top-8 left-8 flex flex-col items-center leading-none text-gray-900 z-20">
-                      <span className="text-5xl font-black tracking-tighter">{overall || 99}</span>
-                      <span className="text-xl font-bold uppercase mt-1">{position || 'POS'}</span>
-                      <div className="w-full h-0.5 bg-gray-900/40 my-1"></div>
-                      {/* Optional Club/Nation icons could go here */}
-                      <span className="text-xs font-bold opacity-70">M.C</span> 
+                   <div className="absolute top-[8%] left-[8%] flex flex-col items-center leading-none text-[#1a1a1a] z-20 font-bold" style={{ textShadow: '0px 1px 0px rgba(255,255,255,0.3)' }}>
+                      <span className="font-black tracking-tighter leading-[0.8]" style={{ fontSize: '3rem' }}>{overall || 99}</span>
+                      <span className="font-bold uppercase mt-1 leading-none" style={{ fontSize: '1.5rem' }}>{position || 'POS'}</span>
+                      <div className="w-full h-0.5 bg-[#1a1a1a]/40 my-1"></div>
+                      <span className="font-bold opacity-80" style={{ fontSize: '1rem' }}>M.C</span> 
                    </div>
 
-                   {/* Center: Image */}
-                   <div className="absolute inset-0 flex items-center justify-center pt-8 pointer-events-none">
+                   {/* Center: Image - Positioned higher */}
+                   <div className="absolute top-[10%] left-[20%] right-0 bottom-[25%] flex items-center justify-center z-10">
                       <img 
                          src={avatarUrl} 
                          alt={name}
-                         className="w-[85%] h-auto max-h-[60%] object-contain drop-shadow-2xl translate-y-2 mask-image-gradient"
+                         className="h-full w-auto object-contain drop-shadow-2xl"
                          style={{ 
-                             maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
-                             WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
+                             transform: 'scale(1.2) translateY(-10px)',
+                             maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+                             WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
                          }}
                       />
                    </div>
 
                    {/* Bottom: Name & Stats */}
-                   <div className="absolute bottom-6 left-0 w-full px-6 flex flex-col items-center">
-                      <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight mb-1 drop-shadow-sm">{name}</h2>
-                      <div className="w-full h-0.5 bg-gray-900/30 mb-3"></div>
+                   <div className="absolute bottom-[5%] left-0 w-full px-6 flex flex-col items-center z-20">
+                      <h2 className="font-black text-[#1a1a1a] uppercase tracking-tight mb-1 drop-shadow-sm text-center leading-none truncate w-full" style={{ fontSize: '1.8rem' }}>
+                        {name}
+                      </h2>
+                      <div className="w-[80%] h-0.5 bg-[#1a1a1a]/30 mb-3"></div>
                       
-                      <div className="grid grid-cols-2 gap-x-8 gap-y-1 w-full max-w-[80%] text-gray-900 font-bold text-lg leading-none">
-                         <div className="flex justify-between">
-                            <span className="opacity-80 text-sm">PAC</span>
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-0 w-full max-w-[85%] text-[#1a1a1a] font-bold leading-tight" style={{ fontSize: '1.1rem' }}>
+                         <div className="flex justify-between items-center border-r border-[#1a1a1a]/10 pr-2">
+                            <span className="opacity-70 text-[0.9em]">PAC</span>
                             <span>{attributes?.pac}</span>
                          </div>
-                         <div className="flex justify-between">
-                            <span className="opacity-80 text-sm">DRI</span>
+                         <div className="flex justify-between items-center pl-2">
+                            <span className="opacity-70 text-[0.9em]">DRI</span>
                             <span>{attributes?.dri}</span>
                          </div>
-                         <div className="flex justify-between">
-                            <span className="opacity-80 text-sm">SHO</span>
+                         <div className="flex justify-between items-center border-r border-[#1a1a1a]/10 pr-2">
+                            <span className="opacity-70 text-[0.9em]">SHO</span>
                             <span>{attributes?.sho}</span>
                          </div>
-                         <div className="flex justify-between">
-                            <span className="opacity-80 text-sm">DEF</span>
+                         <div className="flex justify-between items-center pl-2">
+                            <span className="opacity-70 text-[0.9em]">DEF</span>
                             <span>{attributes?.def}</span>
                          </div>
-                         <div className="flex justify-between">
-                            <span className="opacity-80 text-sm">PAS</span>
+                         <div className="flex justify-between items-center border-r border-[#1a1a1a]/10 pr-2">
+                            <span className="opacity-70 text-[0.9em]">PAS</span>
                             <span>{attributes?.pas}</span>
                          </div>
-                         <div className="flex justify-between">
-                            <span className="opacity-80 text-sm">PHY</span>
+                         <div className="flex justify-between items-center pl-2">
+                            <span className="opacity-70 text-[0.9em]">PHY</span>
                             <span>{attributes?.phy}</span>
                          </div>
                       </div>

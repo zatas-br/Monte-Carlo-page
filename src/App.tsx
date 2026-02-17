@@ -10,13 +10,17 @@ import { VscHome, VscArchive, VscCalendar, VscLibrary, VscClose } from "react-ic
 import { profiles, retrospectives } from './data';
 import { AnimatePresence, motion } from 'framer-motion';
 import BirthdayCelebration from './BirthdayCelebration';
+import ClickSpark from './ClickSpark';
 
 const galleryImages = profiles.map(p => ({
   src: p.image,
   alt: p.name,
   title: p.name,
   description: p.description,
-  link: p.link
+  link: p.link,
+  age: p.age,
+  birthDate: p.birthDate,
+  relationshipStatus: p.relationshipStatus
 }));
 
 export default function App() {
@@ -38,53 +42,59 @@ export default function App() {
   ];
 
   return (
-    <div className={tw.font_sans.bg_black.text_gray_200.h_screen.w_screen.relative.overflow_hidden}>
-      
-      {/* Global Effects */}
-      <BirthdayCelebration />
+    <ClickSpark
+      sparkColor='#fff'
+      sparkSize={10}
+      sparkRadius={15}
+      sparkCount={8}
+      duration={400}
+    >
+      <div className={tw.font_sans.bg_black.text_gray_200.h_screen.w_screen.relative.overflow_hidden}>
+        
+        {/* Global Effects */}
+        <BirthdayCelebration />
 
-      {/* Background Effect - always present but behind everything */}
-      <div className={tw.absolute.inset_0.z_0.pointer_events_none}>
-        <GridScan
-          sensitivity={0.55}
-          lineThickness={1}
-          linesColor="#1a1a2e"
-          gridScale={0.1}
-          scanColor="#6b21a8" // darker purple
-          scanOpacity={0.2}
-          enablePost
-          bloomIntensity={0.6}
-          chromaticAberration={0.002}
-          noiseIntensity={0.02}
-        />
-      </div>
-
-      {/* Main Content */}
-      <div className={tw.w_full.h_full.relative.z_10}>
-        {currentView === 'home' && (
-          <DomeGallery
-            images={galleryImages}
-            fit={0.8}
-            fitBasis="max"
-            minRadius={300}
-            maxVerticalRotationDeg={10}
-            segments={34}
-            dragDampening={2}
-            grayscale={false}
+        {/* Background Effect - always present but behind everything */}
+        <div className={tw.absolute.inset_0.z_0.pointer_events_none}>
+          <GridScan
+            sensitivity={0.55}
+            lineThickness={1}
+            linesColor="#1a1a2e"
+            gridScale={0.1}
+            scanColor="#6b21a8" // darker purple
+            scanOpacity={0.2}
+            enablePost
+            bloomIntensity={0.6}
+            chromaticAberration={0.002}
+            noiseIntensity={0.02}
           />
-        )}
-        {currentView === 'history' && <History />}
-        {currentView === 'events' && <Events />}
-        {currentView === 'media' && (
-             <div style={{ height: '100%', position: 'relative', paddingBottom: '100px', boxSizing: 'border-box' }}>
-                <FlowingMenu items={mediaItems} />
-             </div>
-        )}
-      </div>
+        </div>
 
-      {/* Dock - Changed to fixed for better mobile stability */}
-      <div className={tw.fixed.bottom_5.left_0.w_full.flex.justify_center.z_50.pointer_events_none}>
-        <div className={tw.pointer_events_auto}>
+        {/* Main Content */}
+        <div className={tw.w_full.h_full.relative.z_10}>
+          {currentView === 'home' && (
+            <DomeGallery
+              images={galleryImages}
+              fit={0.8}
+              fitBasis="max"
+              minRadius={300}
+              maxVerticalRotationDeg={10}
+              segments={34}
+              dragDampening={2}
+              grayscale={false}
+            />
+          )}
+          {currentView === 'history' && <History />}
+          {currentView === 'events' && <Events />}
+          {currentView === 'media' && (
+              <div style={{ height: '100%', position: 'relative', paddingBottom: '100px', boxSizing: 'border-box' }}>
+                  <FlowingMenu items={mediaItems} />
+              </div>
+          )}
+        </div>
+
+        {/* Dock - Changed to fixed for better mobile stability */}
+        <div className={tw.fixed.bottom_5.left_0.w_full.flex.justify_center.z_50.pointer_events_auto}>
           <Dock 
             items={dockItems}
             panelHeight={68}
@@ -92,38 +102,38 @@ export default function App() {
             magnification={70}
           />
         </div>
-      </div>
 
-      <AnimatePresence>
-        {selectedVideo && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
-            <div className="absolute inset-0 -z-10" onClick={() => setSelectedVideo(null)}></div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative h-[95vh] aspect-[9/16] w-auto bg-black rounded-2xl overflow-hidden border border-gray-800 shadow-2xl flex flex-col"
-            >
-              <button
-                onClick={() => setSelectedVideo(null)}
-                className="absolute top-4 right-4 p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors z-10 text-white"
+        <AnimatePresence>
+          {selectedVideo && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+              <div className="absolute inset-0 -z-10" onClick={() => setSelectedVideo(null)}></div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="relative h-[95vh] aspect-[9/16] w-auto bg-black rounded-2xl overflow-hidden border border-gray-800 shadow-2xl flex flex-col"
               >
-                <VscClose size={24} />
-              </button>
-              
-              <div className="flex-1 w-full h-full relative">
-                <iframe
-                  src={`https://player.vimeo.com/video/${selectedVideo}?badge=0&autopause=0&player_id=0&app_id=58479`}
-                  frameBorder="0"
-                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
-                  className="w-full h-full"
-                  title="Retrospectiva"
-                ></iframe>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
+                <button
+                  onClick={() => setSelectedVideo(null)}
+                  className="absolute top-4 right-4 p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors z-10 text-white"
+                >
+                  <VscClose size={24} />
+                </button>
+                
+                <div className="flex-1 w-full h-full relative">
+                  <iframe
+                    src={`https://player.vimeo.com/video/${selectedVideo}?badge=0&autopause=0&player_id=0&app_id=58479`}
+                    frameBorder="0"
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
+                    className="w-full h-full"
+                    title="Retrospectiva"
+                  ></iframe>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+    </ClickSpark>
   );
 }

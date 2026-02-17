@@ -6,6 +6,7 @@ interface Profile {
   overall: number;
   age: number;
   birthDate: string;
+  relationshipStatus: string;
   position?: string;
   attributes?: {
     pac: number;
@@ -32,6 +33,7 @@ export const profiles: Profile[] = [
     overall: 85,
     age: 18,
     birthDate: "16/04",
+    relationshipStatus: "Solteiro(a)",
     position: "LD",
     attributes: { pac: 78, sho: 60, pas: 75, dri: 72, def: 80, phy: 70 }
   },
@@ -43,6 +45,7 @@ export const profiles: Profile[] = [
     overall: 88,
     age: 19,
     birthDate: "27/11",
+    relationshipStatus: "Solteiro(a)",
     position: "ATA",
     attributes: { pac: 92, sho: 84, pas: 78, dri: 86, def: 45, phy: 72 }
   },
@@ -54,6 +57,7 @@ export const profiles: Profile[] = [
     overall: 82,
     age: 19,
     birthDate: "13/05",
+    relationshipStatus: "Solteiro(a)",
     position: "VOL",
     attributes: { pac: 70, sho: 65, pas: 82, dri: 75, def: 78, phy: 74 }
   },
@@ -65,6 +69,7 @@ export const profiles: Profile[] = [
     overall: 90,
     age: 19,
     birthDate: "05/11",
+    relationshipStatus: "Solteiro(a)",
     position: "ZAG",
     attributes: { pac: 68, sho: 75, pas: 72, dri: 65, def: 91, phy: 93 }
   },
@@ -76,6 +81,7 @@ export const profiles: Profile[] = [
     overall: 87,
     age: 18,
     birthDate: "03/10",
+    relationshipStatus: "Solteiro(a)",
     position: "MEI",
     attributes: { pac: 84, sho: 82, pas: 86, dri: 88, def: 50, phy: 65 }
   },
@@ -87,6 +93,7 @@ export const profiles: Profile[] = [
     overall: 84,
     age: 20,
     birthDate: "15/05",
+    relationshipStatus: "Solteiro(a)",
     position: "GOL",
     attributes: { pac: 60, sho: 50, pas: 70, dri: 60, def: 85, phy: 80 }
   },
@@ -98,6 +105,7 @@ export const profiles: Profile[] = [
     overall: 92,
     age: 18,
     birthDate: "23/07",
+    relationshipStatus: "Solteiro(a)",
     position: "LE",
     attributes: { pac: 89, sho: 75, pas: 78, dri: 82, def: 86, phy: 94 }
   },
@@ -109,6 +117,7 @@ export const profiles: Profile[] = [
     overall: 91,
     age: 18,
     birthDate: "23/07",
+    relationshipStatus: "Solteiro(a)",
     position: "PD",
     attributes: { pac: 88, sho: 85, pas: 80, dri: 89, def: 55, phy: 76 }
   },
@@ -120,6 +129,7 @@ export const profiles: Profile[] = [
     overall: 89,
     age: 18,
     birthDate: "20/07",
+    relationshipStatus: "Solteiro(a)",
     position: "ZAG",
     attributes: { pac: 72, sho: 60, pas: 75, dri: 68, def: 90, phy: 88 }
   },
@@ -131,6 +141,7 @@ export const profiles: Profile[] = [
     overall: 80,
     age: 17,
     birthDate: "05/06",
+    relationshipStatus: "Solteiro(a)",
     position: "LD",
     attributes: { pac: 75, sho: 65, pas: 72, dri: 78, def: 70, phy: 68 }
   },
@@ -142,6 +153,7 @@ export const profiles: Profile[] = [
     overall: 86,
     age: 18,
     birthDate: "12/03",
+    relationshipStatus: "Solteiro(a)",
     position: "PE",
     attributes: { pac: 94, sho: 70, pas: 74, dri: 85, def: 40, phy: 50 }
   },
@@ -153,6 +165,7 @@ export const profiles: Profile[] = [
     overall: 83,
     age: 18,
     birthDate: "24/11",
+    relationshipStatus: "Solteiro(a)",
     position: "GOL",
     attributes: { pac: 55, sho: 40, pas: 65, dri: 50, def: 82, phy: 85 }
   },
@@ -164,6 +177,7 @@ export const profiles: Profile[] = [
     overall: 78,
     age: 19,
     birthDate: "21/04",
+    relationshipStatus: "Solteiro(a)",
     position: "MC",
     attributes: { pac: 72, sho: 68, pas: 75, dri: 73, def: 70, phy: 74 }
   },
@@ -175,6 +189,7 @@ export const profiles: Profile[] = [
     overall: 75,
     age: 19,
     birthDate: "15/05",
+    relationshipStatus: "Solteiro(a)",
     position: "ZAG",
     attributes: { pac: 50, sho: 60, pas: 70, dri: 65, def: 78, phy: 85 }
   },
@@ -186,6 +201,7 @@ export const profiles: Profile[] = [
     overall: 79,
     age: 18,
     birthDate: "09/01",
+    relationshipStatus: "Solteiro(a)",
     position: "ATA",
     attributes: { pac: 76, sho: 78, pas: 72, dri: 75, def: 40, phy: 70 }
   }
@@ -252,6 +268,7 @@ export interface Event {
   id: string;
   title: string;
   date: string;
+  endDate?: string;
   status: 'past' | 'upcoming';
   description: string;
   images: string[];
@@ -322,7 +339,8 @@ export const events: Event[] = [
   {
     id: "lan-5.0",
     title: "Lan House 5.0",
-    date: "2026-04-03", // ISO format for easy parsing
+    date: "2026-04-03", // Start Date
+    endDate: "2026-04-05", // End Date
     status: 'upcoming',
     description: "O RETORNO. Preparem-se para a maior edição de todas. Novas lendas serão escritas.",
     mainImage: "https://placehold.co/600x400/E1306C/FFF?text=Lan+House+5.0+Coming+Soon",

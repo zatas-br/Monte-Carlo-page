@@ -38,6 +38,7 @@ type DockItemProps = {
   distance: number;
   baseItemSize: number;
   magnification: number;
+  ariaLabel?: string;
 };
 
 function DockItem({
@@ -48,7 +49,8 @@ function DockItem({
   spring,
   distance,
   magnification,
-  baseItemSize
+  baseItemSize,
+  ariaLabel
 }: DockItemProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isHovered = useMotionValue(0);
@@ -80,6 +82,7 @@ function DockItem({
       tabIndex={0}
       role="button"
       aria-haspopup="true"
+      aria-label={ariaLabel}
     >
       {Children.map(children, child =>
         React.isValidElement(child)
@@ -179,6 +182,7 @@ export default function Dock({
             distance={distance}
             magnification={magnification}
             baseItemSize={baseItemSize}
+            ariaLabel={typeof item.label === 'string' ? item.label : undefined}
           >
             <DockIcon>{item.icon}</DockIcon>
             <DockLabel>{item.label}</DockLabel>
