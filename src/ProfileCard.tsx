@@ -536,16 +536,21 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                       <span className="font-bold uppercase mt-1 leading-none" style={{ fontSize: '1.5rem' }}>{position || 'POS'}</span>
                       <div className="w-full h-0.5 bg-[#1a1a1a]/40 my-1"></div>
                       <span className="font-bold opacity-80" style={{ fontSize: '1rem' }}>M.C</span> 
+                      <img 
+                        src="/Imagens/brazil_flag.svg" 
+                        alt="Brazil Flag" 
+                        className="w-8 h-auto mt-1 shadow-sm rounded-sm opacity-90"
+                      />
                    </div>
 
                    {/* Center: Image - Positioned higher */}
-                   <div className="absolute top-[5%] left-[20%] right-0 bottom-[35%] flex items-start justify-center z-10 pointer-events-none">
+                   <div className="absolute top-[-8%] left-[20%] right-0 bottom-[35%] flex items-start justify-center z-10 pointer-events-none">
                       <img 
                          src={avatarUrl} 
                          alt={name}
                          className="h-full w-auto object-contain drop-shadow-2xl"
                          style={{ 
-                             transform: 'scale(1.35) translateY(-15px)',
+                             transform: 'scale(1.4) translateY(-70px)',
                              maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
                              WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
                          }}
