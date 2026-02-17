@@ -6,6 +6,21 @@ interface Profile {
   overall: number;
   age: number;
   birthDate: string;
+  position?: string;
+  attributes?: {
+    pac: number;
+    sho: number;
+    pas: number;
+    dri: number;
+    def: number;
+    phy: number;
+  };
+}
+
+interface Retrospective {
+  year: number;
+  videoUrl: string;
+  videoId: string;
 }
 
 export const profiles: Profile[] = [
@@ -16,7 +31,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/yaguin_16/",
     overall: 85,
     age: 18,
-    birthDate: "16/04"
+    birthDate: "16/04",
+    position: "LD",
+    attributes: { pac: 78, sho: 60, pas: 75, dri: 72, def: 80, phy: 70 }
   },
   {
     name: "Gabriel Cardoso",
@@ -25,7 +42,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/gabrielcardos095/",
     overall: 88,
     age: 19,
-    birthDate: "27/11"
+    birthDate: "27/11",
+    position: "ATA",
+    attributes: { pac: 92, sho: 84, pas: 78, dri: 86, def: 45, phy: 72 }
   },
   {
     name: "Bruno Santiago",
@@ -34,7 +53,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/bruno_s4nt/",
     overall: 82,
     age: 19,
-    birthDate: "13/05"
+    birthDate: "13/05",
+    position: "VOL",
+    attributes: { pac: 70, sho: 65, pas: 82, dri: 75, def: 78, phy: 74 }
   },
   {
     name: "Thiago Bryan",
@@ -43,7 +64,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/thbryann/",
     overall: 90,
     age: 19,
-    birthDate: "05/11"
+    birthDate: "05/11",
+    position: "ZAG",
+    attributes: { pac: 68, sho: 75, pas: 72, dri: 65, def: 91, phy: 93 }
   },
   {
     name: "Antony Brito",
@@ -52,7 +75,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/antonybriito",
     overall: 87,
     age: 18,
-    birthDate: "03/10"
+    birthDate: "03/10",
+    position: "MEI",
+    attributes: { pac: 84, sho: 82, pas: 86, dri: 88, def: 50, phy: 65 }
   },
   {
     name: "Natan A. Santiago",
@@ -61,7 +86,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/natan.santt",
     overall: 84,
     age: 20,
-    birthDate: "15/05"
+    birthDate: "15/05",
+    position: "GOL",
+    attributes: { pac: 60, sho: 50, pas: 70, dri: 60, def: 85, phy: 80 }
   },
   {
     name: "Renan Natal",
@@ -70,7 +97,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/016_natal?igsh=MTdocmU2OHhvNmt5Zw==",
     overall: 92,
     age: 18,
-    birthDate: "23/07"
+    birthDate: "23/07",
+    position: "LE",
+    attributes: { pac: 89, sho: 75, pas: 78, dri: 82, def: 86, phy: 94 }
   },
   {
     name: "Ryan Natal",
@@ -79,7 +108,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/eey_ryan?igsh=MThpYTB1MXRpemI1MQ==",
     overall: 91,
     age: 18,
-    birthDate: "23/07"
+    birthDate: "23/07",
+    position: "PD",
+    attributes: { pac: 88, sho: 85, pas: 80, dri: 89, def: 55, phy: 76 }
   },
   {
     name: "Lucas Sperandio",
@@ -88,7 +119,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/sperandio_lucass?igsh=MWN2MjU1cHU3djc0YQ==",
     overall: 89,
     age: 18,
-    birthDate: "20/07"
+    birthDate: "20/07",
+    position: "ZAG",
+    attributes: { pac: 72, sho: 60, pas: 75, dri: 68, def: 90, phy: 88 }
   },
   {
     name: "Kauan A. Santiago",
@@ -97,7 +130,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/natan.santt",
     overall: 80,
     age: 17,
-    birthDate: "05/06"
+    birthDate: "05/06",
+    position: "LD",
+    attributes: { pac: 75, sho: 65, pas: 72, dri: 78, def: 70, phy: 68 }
   },
   {
     name: "Vitor Santiago",
@@ -106,7 +141,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/vtzin.x7wc?igsh=cDZyeHJhaWJrMjN3",
     overall: 86,
     age: 18,
-    birthDate: "12/03"
+    birthDate: "12/03",
+    position: "PE",
+    attributes: { pac: 94, sho: 70, pas: 74, dri: 85, def: 40, phy: 50 }
   },
   {
     name: "Gabriel Santiago",
@@ -115,7 +152,9 @@ export const profiles: Profile[] = [
     link: "https://www.instagram.com/biel.sant1?igsh=MTgzMXBlMXZtajNteQ==",
     overall: 83,
     age: 18,
-    birthDate: "24/11"
+    birthDate: "24/11",
+    position: "GOL",
+    attributes: { pac: 55, sho: 40, pas: 65, dri: 50, def: 82, phy: 85 }
   },
   {
     name: "Chrystian Tomaz",
@@ -124,7 +163,9 @@ export const profiles: Profile[] = [
     link: "",
     overall: 78,
     age: 19,
-    birthDate: "21/04"
+    birthDate: "21/04",
+    position: "MC",
+    attributes: { pac: 72, sho: 68, pas: 75, dri: 73, def: 70, phy: 74 }
   },
   {
     name: "Natan (Gordo)",
@@ -133,7 +174,9 @@ export const profiles: Profile[] = [
     link: "",
     overall: 75,
     age: 19,
-    birthDate: "15/05"
+    birthDate: "15/05",
+    position: "ZAG",
+    attributes: { pac: 50, sho: 60, pas: 70, dri: 65, def: 78, phy: 85 }
   },
   {
     name: "Felipe Brito",
@@ -142,7 +185,9 @@ export const profiles: Profile[] = [
     link: "",
     overall: 79,
     age: 18,
-    birthDate: "09/01"
+    birthDate: "09/01",
+    position: "ATA",
+    attributes: { pac: 76, sho: 78, pas: 72, dri: 75, def: 40, phy: 70 }
   }
 ];
 

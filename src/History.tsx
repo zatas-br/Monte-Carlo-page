@@ -1,6 +1,6 @@
 import { tw } from 'typewind';
 import { historyContent, profiles, socialLinks, retrospectives, rankingCategories } from './data';
-import { FaInstagram, FaMapMarkerAlt, FaTrophy } from 'react-icons/fa';
+import { FaInstagram, FaMapMarkerAlt, FaTrophy, FaQuestion } from 'react-icons/fa';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
@@ -12,6 +12,7 @@ type Formation = '4-3-3' | '4-4-2' | '3-5-2';
 export default function History() {
   const [showSoccerField, setShowSoccerField] = useState(false);
   const [showRanking, setShowRanking] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [formation, setFormation] = useState<Formation>('4-3-3');
@@ -94,101 +95,158 @@ export default function History() {
   };
 
   return (
-    <div className={`${tw.w_full.h_full.overflow_y_auto.text_gray_200.p_8.pb_32.relative.z_10} no-scrollbar`}>
-      <div className={tw.max_w_3xl.mx_auto.pt_12}>
-        <h1 className={tw.text_4xl.font_bold.mb_2.text_white.text_center}>{historyContent.title}</h1>
-        <h2 className={tw.text_xl.text_gray_400.mb_8.text_center.font_light}>{historyContent.subtitle}</h2>
-        
-        <div className={tw.flex.justify_center.mb_8}>
-           <button 
-             onClick={() => setShowSoccerField(true)}
-             className={tw.bg_green_600.hover_bg_green_700.text_white.font_bold.py_3.px_8.rounded_full.shadow_lg.transition_all.duration_300.transform.hover_scale_105.flex.items_center.gap_2}
-           >
-             <span>⚽</span> Visualizar campo de futebol
-           </button>
-        </div>
+    <div className={tw.w_full.h_full.relative.overflow_hidden}>
+      {/* Fixed Header */}
+      <div className={tw.absolute.top_8.w_full.text_center.z_20.pointer_events_none}>
+        <h1 className={tw.text_4xl.font_bold.mb_2.text_white.drop_shadow_lg}>{historyContent.title}</h1>
+        <h2 className={tw.text_xl.text_gray_400.font_light.drop_shadow_md}>{historyContent.subtitle}</h2>
+      </div>
 
-        <div className={tw.space_y_6.text_lg.leading_relaxed.text_gray_300.text_justify}>
-          {historyContent.text.map((paragraph, index) => (
-             <p key={index}>{paragraph}</p>
-          ))}
+      {/* Scrollable Content */}
+      <div className={`${tw.w_full.h_full.absolute.inset_0.overflow_y_auto.text_gray_200.p_8.pt_32.pb_32.z_10} no-scrollbar`}>
+        <div className={tw.max_w_3xl.mx_auto}>
           
-          <div className={`${tw.my_12.relative} group`}>
-            <div className={`${tw.absolute.inset_0.bg_purple_600.blur_xl.opacity_20.transition_opacity.duration_500.rounded_xl} group-hover:opacity-40`}></div>
-            <img 
-              src={historyContent.image} 
-              alt="História Monte Carlo" 
-              className={tw.w_full.h_64.object_cover.rounded_xl.relative.z_10.shadow_2xl.border.border_gray_800}
-            />
-          </div>
-
-          <div className={tw.mb_12}>
-            <h3 className={tw.text_2xl.font_bold.mb_6.text_center.text_white}>Retrospectiva</h3>
-            <div className={tw.flex.flex_wrap.justify_center.gap_4}>
-              {retrospectives.map((retro) => (
-                <button
-                  key={retro.year}
-                  onClick={() => setSelectedVideo(retro.videoId)}
-                  className={tw.px_6.py_3.bg_gray_800.rounded_full.text_gray_200.font_bold.hover_bg_purple_600.hover_text_white.transition_colors.border.border_gray_700.shadow_lg}
-                >
-                  {retro.year}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <div className={tw.flex.justify_center.gap_4.mb_16.flex_wrap}>
-             <a 
-               href={socialLinks.instagram} 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className={tw.flex.items_center.space_x_2.bg_gradient_to_r.from_purple_600.to_pink_600.text_white.px_6.py_3.rounded_full.hover_opacity_90.transition_opacity.shadow_lg}
-             >
-               <FaInstagram size={24} />
-               <span className={tw.font_bold}>Siga-nos no Instagram</span>
-             </a>
-             <a 
-               href="https://maps.app.goo.gl/LND8n7iAqUjDYLwaA" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className={tw.flex.items_center.space_x_2.bg_gradient_to_r.from_blue_600.to_cyan_600.text_white.px_6.py_3.rounded_full.hover_opacity_90.transition_opacity.shadow_lg}
-             >
-               <FaMapMarkerAlt size={24} />
-               <span className={tw.font_bold}>Localização</span>
-             </a>
+          <div className={tw.flex.justify_center.mb_8}>
              <button 
-               onClick={() => setShowRanking(true)}
-               className={tw.flex.items_center.space_x_2.bg_gradient_to_r.from_yellow_500.to_orange_500.text_white.px_6.py_3.rounded_full.hover_opacity_90.transition_opacity.shadow_lg}
+               onClick={() => setShowSoccerField(true)}
+               className={tw.bg_green_600.hover_bg_green_700.text_white.font_bold.py_3.px_8.rounded_full.shadow_lg.transition_all.duration_300.transform.hover_scale_105.flex.items_center.gap_2}
              >
-               <FaTrophy size={24} />
-               <span className={tw.font_bold}>Rankings</span>
+               <span>⚽</span> Visualizar campo de futebol
              </button>
           </div>
 
-          <h3 className={tw.text_2xl.font_bold.mt_16.mb_8.text_center.text_white}>Quem Faz Acontecer</h3>
-
-          <div className={`${tw.grid.gap_8} grid-cols-1 md:grid-cols-2`}>
-            {profiles.map((profile, idx) => (
-              <div key={idx} className={tw.bg_gray_900.bg_opacity_50.p_4.rounded_xl.border.border_gray_800.flex.flex_col.items_center.text_center.backdrop_blur_sm}>
-                <div className={tw.w_32.h_32.mb_4.rounded_full.overflow_hidden.border_2.border_purple_500.shadow_lg}>
-                  <img src={profile.image} alt={profile.name} className={tw.w_full.h_full.object_cover} />
-                </div>
-                <h4 className={tw.text_xl.font_bold.text_purple_400.mb_2}>{profile.name}</h4>
-                <p className={tw.text_sm.text_gray_400.mb_4}>{profile.description}</p>
-                {profile.link && (
-                  <a href={profile.link} target="_blank" rel="noopener noreferrer" className={tw.text_xs.text_purple_300.hover_text_purple_100.underline}>
-                    Instagram
-                  </a>
-                )}
-              </div>
+          <div className={tw.space_y_6.text_lg.leading_relaxed.text_gray_300.text_justify}>
+            {historyContent.text.map((paragraph, index) => (
+               <p key={index}>{paragraph}</p>
             ))}
-          </div>
+            
+            <div className={`${tw.my_12.relative} group`}>
+              <div className={`${tw.absolute.inset_0.bg_purple_600.blur_xl.opacity_20.transition_opacity.duration_500.rounded_xl} group-hover:opacity-40`}></div>
+              <img 
+                src={historyContent.image} 
+                alt="História Monte Carlo" 
+                className={tw.w_full.h_64.object_cover.rounded_xl.relative.z_10.shadow_2xl.border.border_gray_800}
+              />
+            </div>
 
-          <p className={tw.italic.text_gray_400.mt_12.text_center.border_t.border_gray_800.pt_8}>
-            "Aqui a gente não só joga, a gente faz história."
-          </p>
+            <div className={tw.mb_12}>
+              <h3 className={tw.text_2xl.font_bold.mb_6.text_center.text_white}>Retrospectiva</h3>
+              <div className={tw.flex.flex_wrap.justify_center.gap_4}>
+                {retrospectives.map((retro) => (
+                  <button
+                    key={retro.year}
+                    onClick={() => setSelectedVideo(retro.videoId)}
+                    className={tw.px_6.py_3.bg_gray_800.rounded_full.text_gray_200.font_bold.hover_bg_purple_600.hover_text_white.transition_colors.border.border_gray_700.shadow_lg}
+                  >
+                    {retro.year}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className={tw.flex.justify_center.gap_4.mb_16.flex_wrap}>
+               <a 
+                 href={socialLinks.instagram} 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className={tw.flex.items_center.space_x_2.bg_gradient_to_r.from_purple_600.to_pink_600.text_white.px_6.py_3.rounded_full.hover_opacity_90.transition_opacity.shadow_lg}
+               >
+                 <FaInstagram size={24} />
+                 <span className={tw.font_bold}>Siga-nos no Instagram</span>
+               </a>
+               <a 
+                 href="https://maps.app.goo.gl/LND8n7iAqUjDYLwaA" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className={tw.flex.items_center.space_x_2.bg_gradient_to_r.from_blue_600.to_cyan_600.text_white.px_6.py_3.rounded_full.hover_opacity_90.transition_opacity.shadow_lg}
+               >
+                 <FaMapMarkerAlt size={24} />
+                 <span className={tw.font_bold}>Localização</span>
+               </a>
+               <button 
+                 onClick={() => setShowRanking(true)}
+                 className={tw.flex.items_center.space_x_2.bg_gradient_to_r.from_yellow_500.to_orange_500.text_white.px_6.py_3.rounded_full.hover_opacity_90.transition_opacity.shadow_lg}
+               >
+                 <FaTrophy size={24} />
+                 <span className={tw.font_bold}>Rankings</span>
+               </button>
+               <button 
+                 onClick={() => setShowQuiz(true)}
+                 className={tw.flex.items_center.space_x_2.bg_gradient_to_r.from_indigo_500.to_purple_500.text_white.px_6.py_3.rounded_full.hover_opacity_90.transition_opacity.shadow_lg}
+               >
+                 <FaQuestion size={24} />
+                 <span className={tw.font_bold}>Quiz</span>
+               </button>
+            </div>
+
+            <h3 className={tw.text_2xl.font_bold.mt_16.mb_8.text_center.text_white}>Quem Faz Acontecer</h3>
+
+            <div className={`${tw.grid.gap_8} grid-cols-1 md:grid-cols-2`}>
+              {profiles.map((profile, idx) => (
+                <div key={idx} className={tw.bg_gray_900.bg_opacity_50.p_4.rounded_xl.border.border_gray_800.flex.flex_col.items_center.text_center.backdrop_blur_sm}>
+                  <div className={tw.w_32.h_32.mb_4.rounded_full.overflow_hidden.border_2.border_purple_500.shadow_lg}>
+                    <img src={profile.image} alt={profile.name} className={tw.w_full.h_full.object_cover} />
+                  </div>
+                  <h4 className={tw.text_xl.font_bold.text_purple_400.mb_2}>{profile.name}</h4>
+                  <p className={tw.text_sm.text_gray_400.mb_4}>{profile.description}</p>
+                  {profile.link && (
+                    <a href={profile.link} target="_blank" rel="noopener noreferrer" className={tw.text_xs.text_purple_300.hover_text_purple_100.underline}>
+                      Instagram
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <p className={tw.italic.text_gray_400.mt_12.text_center.border_t.border_gray_800.pt_8}>
+              "Aqui a gente não só joga, a gente faz história."
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Quiz Modal */}
+      {createPortal(
+        <AnimatePresence>
+          {showQuiz && (
+            <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+              <div className="absolute inset-0" onClick={() => setShowQuiz(false)}></div>
+              <motion.div
+                 initial={{ opacity: 0, scale: 0.9 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 exit={{ opacity: 0, scale: 0.9 }}
+                 className="relative z-10 w-full max-w-md bg-gray-900 border border-purple-500/30 rounded-2xl p-8 text-center shadow-2xl"
+              >
+                 <button
+                   onClick={() => setShowQuiz(false)}
+                   className="absolute top-4 right-4 p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors text-white"
+                 >
+                   <VscClose size={24} />
+                 </button>
+                 
+                 <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <FaQuestion size={32} className="text-white" />
+                 </div>
+                 
+                 <h2 className="text-2xl font-bold text-white mb-2">Quiz do Monte Carlo</h2>
+                 <p className="text-purple-400 font-medium mb-6 uppercase tracking-widest text-sm">Em Breve</p>
+                 
+                 <p className="text-gray-300 leading-relaxed mb-8">
+                   Prepare-se para testar seus conhecimentos sobre as tretas, as vitórias e as lendas do grupo. Quem foi o artilheiro de 2023? Onde foi a treta do CS? Fique ligado!
+                 </p>
+                 
+                 <button
+                   onClick={() => setShowQuiz(false)}
+                   className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold transition-colors"
+                 >
+                   Entendi
+                 </button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Ranking Modal */}
       {createPortal(
@@ -542,6 +600,10 @@ export default function History() {
                     enableTilt={true}
                     enableMobileTilt={true}
                     showUserInfo={true}
+                    // New props
+                    overall={selectedPlayer.overall}
+                    position={selectedPlayer.position}
+                    attributes={selectedPlayer.attributes}
                   />
               </div>
             </div>

@@ -9,6 +9,7 @@ import { GridScan } from './GridScan';
 import { VscHome, VscArchive, VscCalendar, VscLibrary, VscClose } from "react-icons/vsc";
 import { profiles, retrospectives } from './data';
 import { AnimatePresence, motion } from 'framer-motion';
+import BirthdayCelebration from './BirthdayCelebration';
 
 const galleryImages = profiles.map(p => ({
   src: p.image,
@@ -39,6 +40,9 @@ export default function App() {
   return (
     <div className={tw.font_sans.bg_black.text_gray_200.h_screen.w_screen.relative.overflow_hidden}>
       
+      {/* Global Effects */}
+      <BirthdayCelebration />
+
       {/* Background Effect - always present but behind everything */}
       <div className={tw.absolute.inset_0.z_0.pointer_events_none}>
         <GridScan
@@ -72,14 +76,14 @@ export default function App() {
         {currentView === 'history' && <History />}
         {currentView === 'events' && <Events />}
         {currentView === 'media' && (
-             <div style={{ height: '100%', position: 'relative' }}>
+             <div style={{ height: '100%', position: 'relative', paddingBottom: '100px', boxSizing: 'border-box' }}>
                 <FlowingMenu items={mediaItems} />
              </div>
         )}
       </div>
 
-      {/* Dock */}
-      <div className={tw.absolute.bottom_5.left_0.w_full.flex.justify_center.z_50.pointer_events_none}>
+      {/* Dock - Changed to fixed for better mobile stability */}
+      <div className={tw.fixed.bottom_5.left_0.w_full.flex.justify_center.z_50.pointer_events_none}>
         <div className={tw.pointer_events_auto}>
           <Dock 
             items={dockItems}
