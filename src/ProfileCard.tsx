@@ -539,15 +539,15 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                    </div>
 
                    {/* Center: Image - Positioned higher */}
-                   <div className="absolute top-[10%] left-[20%] right-0 bottom-[25%] flex items-center justify-center z-10">
+                   <div className="absolute top-[5%] left-[20%] right-0 bottom-[35%] flex items-start justify-center z-10 pointer-events-none">
                       <img 
                          src={avatarUrl} 
                          alt={name}
                          className="h-full w-auto object-contain drop-shadow-2xl"
                          style={{ 
-                             transform: 'scale(1.2) translateY(-10px)',
-                             maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
-                             WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
+                             transform: 'scale(1.35) translateY(-15px)',
+                             maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
+                             WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
                          }}
                       />
                    </div>

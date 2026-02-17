@@ -73,7 +73,7 @@ export default function Events() {
          </button>
       </div>
 
-      <div className={tw.w_full.h_full.absolute.inset_0.pt_32.pb_24.overflow_y_auto}>
+      <div className={tw.w_full.h_full.absolute.inset_0.pt_32.md_pt_32.pt_48.pb_24.overflow_y_auto}>
         <AnimatePresence mode='wait'>
             {viewMode === 'gallery' ? (
                 <motion.div 
@@ -114,6 +114,7 @@ export default function Events() {
                         scrollEase={0.05}
                         scrollSpeed={2}
                         onItemClick={handleItemClick}
+                        enableDrag={false}
                     />
                     )}
                 </motion.div>

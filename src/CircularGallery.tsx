@@ -383,6 +383,7 @@ interface AppConfig {
   scrollSpeed?: number;
   scrollEase?: number;
   onItemClick?: (index: number) => void;
+  enableDrag?: boolean;
 }
 
 class App {
@@ -407,6 +408,7 @@ class App {
   viewport!: { width: number; height: number };
   raf: number = 0;
   onItemClick?: (index: number) => void;
+  enableDrag: boolean = true;
 
   boundOnResize!: () => void;
   boundOnWheel!: (e: Event) => void;
@@ -429,12 +431,14 @@ class App {
       font = 'bold 30px Figtree',
       scrollSpeed = 2,
       scrollEase = 0.05,
-      onItemClick
+      onItemClick,
+      enableDrag = true
     }: AppConfig
   ) {
     document.documentElement.classList.remove('no-js');
     this.container = container;
     this.scrollSpeed = scrollSpeed;
+    this.enableDrag = enableDrag;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck.bind(this), 200);
     this.onItemClick = onItemClick;
@@ -517,7 +521,7 @@ class App {
   }
 
   onTouchMove(e: MouseEvent | TouchEvent) {
-    if (!this.isDown) return;
+    if (!this.isDown || !this.enableDrag) return;
     const x = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const distance = (this.start - x) * (this.scrollSpeed * 0.025);
     this.scroll.target = (this.scroll.position ?? 0) + distance;
@@ -687,6 +691,7 @@ interface CircularGalleryProps {
   scrollSpeed?: number;
   scrollEase?: number;
   onItemClick?: (index: number) => void;
+  enableDrag?: boolean;
 }
 
 export default function CircularGallery({
@@ -697,7 +702,8 @@ export default function CircularGallery({
   font = 'bold 30px Figtree',
   scrollSpeed = 2,
   scrollEase = 0.05,
-  onItemClick
+  onItemClick,
+  enableDrag = true
 }: CircularGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -710,11 +716,12 @@ export default function CircularGallery({
       font,
       scrollSpeed,
       scrollEase,
-      onItemClick
+      onItemClick,
+      enableDrag
     });
     return () => {
       app.destroy();
     };
-  }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, onItemClick]);
+  }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, onItemClick, enableDrag]);
   return <div className="w-full h-full overflow-hidden cursor-grab active:cursor-grabbing" ref={containerRef} />;
 }

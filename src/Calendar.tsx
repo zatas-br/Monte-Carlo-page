@@ -52,7 +52,7 @@ const holidays2026: Holiday[] = [
 ];
 
 export default function Calendar({ onEventClick }: CalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 1)); // Start at Jan 2026 for visibility
+  const [currentMonth, setCurrentMonth] = useState(new Date()); 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));

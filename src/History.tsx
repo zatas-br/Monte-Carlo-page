@@ -20,6 +20,7 @@ export default function History({ onMemberClick }: HistoryProps) {
   const [showQuiz, setShowQuiz] = useState(false);
   // selectedPlayer state removed in favor of parent state
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [selectedFifaPlayer, setSelectedFifaPlayer] = useState<any | null>(null);
   const [formation, setFormation] = useState<Formation>('4-3-3');
   const [mode, setMode] = useState<Mode>('Campo');
   
@@ -33,7 +34,7 @@ export default function History({ onMemberClick }: HistoryProps) {
 
   // Lock body scroll when modals are open
   useEffect(() => {
-    if (showSoccerField || showRanking || showQuiz || selectedVideo) {
+    if (showSoccerField || showRanking || showQuiz || selectedVideo || selectedFifaPlayer) {
       document.body.classList.add('no-scrollbar');
       document.body.style.overflow = 'hidden';
     } else {
@@ -44,7 +45,7 @@ export default function History({ onMemberClick }: HistoryProps) {
       document.body.classList.remove('no-scrollbar');
       document.body.style.overflow = 'unset';
     };
-  }, [showSoccerField, showRanking, showQuiz, selectedVideo]);
+  }, [showSoccerField, showRanking, showQuiz, selectedVideo, selectedFifaPlayer]);
 
   // Logic for Futsal (5 players) vs Field (11 players)
   const startersCount = mode === 'Campo' ? 11 : 5;
@@ -495,16 +496,16 @@ export default function History({ onMemberClick }: HistoryProps) {
                           }}
                           data-player-index={index} 
                           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                          onClick={() => onMemberClick?.(player)}
+                          onClick={() => setSelectedFifaPlayer(player)}
                         >
-                          <div className="w-16 h-16 rounded-full border-2 border-white overflow-hidden shadow-lg bg-gray-800 relative z-10 pointer-events-none">
+                          <div className="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-white overflow-hidden shadow-lg bg-gray-800 relative z-10 pointer-events-none">
                             <img src={player.image} alt={player.name} className="w-full h-full object-cover" />
                           </div>
                           <div className="mt-1 flex flex-col items-center pointer-events-none">
-                             <span className="text-[10px] font-bold text-white bg-black/60 px-2 py-0.5 rounded-full whitespace-nowrap backdrop-blur-sm mb-0.5">
+                             <span className="text-[9px] md:text-[10px] font-bold text-white bg-black/60 px-2 py-0.5 rounded-full whitespace-nowrap backdrop-blur-sm mb-0.5">
                               {player.name.split(' ')[0]}
                              </span>
-                             <span className="text-[10px] font-black text-yellow-400 bg-black/80 px-1.5 rounded-md leading-tight border border-yellow-400/30">
+                             <span className="text-[9px] md:text-[10px] font-black text-yellow-400 bg-black/80 px-1.5 rounded-md leading-tight border border-yellow-400/30">
                                OVER: {player.overall || 99}
                              </span>
                           </div>
@@ -578,7 +579,7 @@ export default function History({ onMemberClick }: HistoryProps) {
                         Reservas <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">{benchPlayers.length}</span>
                     </h3>
                     
-                    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-1 gap-3 max-h-[30vh] lg:max-h-[400px] overflow-y-auto pr-1 no-scrollbar lg:scrollbar-thin lg:scrollbar-thumb-gray-700 lg:scrollbar-track-transparent">
+                    <div className="grid grid-cols-1 gap-3 lg:max-h-[400px] overflow-y-auto pr-1 no-scrollbar lg:scrollbar-thin lg:scrollbar-thumb-gray-700 lg:scrollbar-track-transparent">
                       {benchPlayers.map((player, index) => {
                         // Adjust index for playerOrder (reserves start after starters)
                         const realIndex = startersCount + index;
@@ -587,7 +588,7 @@ export default function History({ onMemberClick }: HistoryProps) {
                             key={`${player.name}-${realIndex}`}
                             layoutId={player.name}
                             className="bg-gray-800/50 p-2 rounded-xl border border-gray-700 flex items-center gap-3 cursor-pointer hover:bg-gray-700/50 transition-colors touch-none relative"
-                            onClick={() => onMemberClick?.(player)}
+                            onClick={() => setSelectedFifaPlayer(player)}
                             whileHover={{ scale: 1.02 }}
                             drag
                             dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -631,6 +632,42 @@ export default function History({ onMemberClick }: HistoryProps) {
                 </div>
               </div>
             </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {/* FIFA Card Modal */}
+      {createPortal(
+        <AnimatePresence>
+          {selectedFifaPlayer && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+              <div className="absolute inset-0" onClick={() => setSelectedFifaPlayer(null)}></div>
+              <div className="relative z-10 w-full max-w-sm">
+                  <button
+                      onClick={() => setSelectedFifaPlayer(null)}
+                      className="absolute -top-12 right-0 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-white"
+                  >
+                      <VscClose size={24} />
+                  </button>
+                  <ProfileCard
+                    name={selectedFifaPlayer.name}
+                    title=""
+                    handle=""
+                    avatarUrl={selectedFifaPlayer.image}
+                    miniAvatarUrl={selectedFifaPlayer.image}
+                    status=""
+                    contactText=""
+                    showUserInfo={false}
+                    enableTilt={true}
+                    enableMobileTilt={true}
+                    // FIFA specific props
+                    overall={selectedFifaPlayer.overall}
+                    position={selectedFifaPlayer.position}
+                    attributes={selectedFifaPlayer.attributes}
+                  />
+              </div>
+            </div>
           )}
         </AnimatePresence>,
         document.body
