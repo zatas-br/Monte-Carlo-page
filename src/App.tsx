@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { tw } from 'typewind';
 import DomeGallery from './DomeGallery';
 import Dock from './Dock';
@@ -11,6 +11,7 @@ import { profiles, retrospectives } from './data';
 import { AnimatePresence, motion } from 'framer-motion';
 import BirthdayCelebration from './BirthdayCelebration';
 import ClickSpark from './ClickSpark';
+import MemberModal from './MemberModal';
 
 const galleryImages = profiles.map(p => ({
   src: p.image,
@@ -20,12 +21,33 @@ const galleryImages = profiles.map(p => ({
   link: p.link,
   age: p.age,
   birthDate: p.birthDate,
-  relationshipStatus: p.relationshipStatus
+  relationshipStatus: p.relationshipStatus,
+  // Pass full attributes for modal
+  overall: p.overall,
+  position: p.position,
+  attributes: p.attributes,
+  // Reference to original profile
+  ...p
 }));
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'home' | 'history' | 'events' | 'media'>('home');
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [selectedMember, setSelectedMember] = useState<any | null>(null);
+
+  useEffect(() => {
+    if (selectedVideo || selectedMember) {
+      document.body.classList.add('no-scrollbar');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('no-scrollbar');
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.classList.remove('no-scrollbar');
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedVideo, selectedMember]);
 
   const mediaItems = retrospectives.map(retro => ({
     link: '#',
@@ -82,14 +104,22 @@ export default function App() {
               segments={34}
               dragDampening={2}
               grayscale={false}
+              onItemClick={(item) => setSelectedMember(item)}
             />
           )}
-          {currentView === 'history' && <History />}
+          {currentView === 'history' && (
+            <History onMemberClick={(member) => setSelectedMember(member)} />
+          )}
           {currentView === 'events' && <Events />}
           {currentView === 'media' && (
-              <div style={{ height: '100%', position: 'relative', paddingBottom: '100px', boxSizing: 'border-box' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                style={{ height: '100%', position: 'relative', paddingBottom: '100px', boxSizing: 'border-box' }}
+              >
                   <FlowingMenu items={mediaItems} />
-              </div>
+              </motion.div>
           )}
         </div>
 
@@ -133,6 +163,11 @@ export default function App() {
             </div>
           )}
         </AnimatePresence>
+
+        <MemberModal 
+          member={selectedMember} 
+          onClose={() => setSelectedMember(null)} 
+        />
       </div>
     </ClickSpark>
   );

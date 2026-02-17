@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
-import { FaInstagram, FaBirthdayCake, FaHeart } from 'react-icons/fa';
 import { createRoot } from 'react-dom/client';
 
 type ImageItem = string | { 
@@ -33,6 +32,7 @@ type DomeGalleryProps = {
   imageBorderRadius?: string;
   openedImageBorderRadius?: string;
   grayscale?: boolean;
+  onItemClick?: (item: any) => void;
 };
 
 type ItemDef = {
@@ -162,15 +162,14 @@ export default function DomeGallery({
   openedImageHeight = '400px',
   imageBorderRadius = '30px',
   openedImageBorderRadius = '30px',
-  grayscale = true
+  grayscale = true,
+  onItemClick
 }: DomeGalleryProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const sphereRef = useRef<HTMLDivElement>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
-  const viewerRef = useRef<HTMLDivElement>(null);
-  const scrimRef = useRef<HTMLDivElement>(null);
-  const focusedElRef = useRef<HTMLElement | null>(null);
+  
+  // Cleaned up unused refs
   const originalTilePositionRef = useRef<{
     left: number;
     top: number;
@@ -187,23 +186,7 @@ export default function DomeGallery({
   const inertiaRAF = useRef<number | null>(null);
   const pointerTypeRef = useRef<'mouse' | 'pen' | 'touch'>('mouse');
   const tapTargetRef = useRef<HTMLElement | null>(null);
-  const openingRef = useRef(false);
-  const openStartedAtRef = useRef(0);
   const lastDragEndAt = useRef(0);
-  const countdownIntervalRef = useRef<number | null>(null);
-
-  const scrollLockedRef = useRef(false);
-  const lockScroll = useCallback(() => {
-    if (scrollLockedRef.current) return;
-    scrollLockedRef.current = true;
-    document.body.classList.add('dg-scroll-lock');
-  }, []);
-  const unlockScroll = useCallback(() => {
-    if (!scrollLockedRef.current) return;
-    if (rootRef.current?.getAttribute('data-enlarging') === 'true') return;
-    scrollLockedRef.current = false;
-    document.body.classList.remove('dg-scroll-lock');
-  }, []);
 
   const items = useMemo(() => buildItems(images, segments), [images, segments]);
 
@@ -257,28 +240,6 @@ export default function DomeGallery({
       root.style.setProperty('--enlarge-radius', openedImageBorderRadius);
       root.style.setProperty('--image-filter', grayscale ? 'grayscale(1)' : 'none');
       applyTransform(rotationRef.current.x, rotationRef.current.y);
-
-      const enlargedOverlay = viewerRef.current?.querySelector('.enlarge') as HTMLElement;
-      if (enlargedOverlay && frameRef.current && mainRef.current) {
-        const frameR = frameRef.current.getBoundingClientRect();
-        const mainR = mainRef.current.getBoundingClientRect();
-        
-        // For full screen experience
-        const windowW = window.innerWidth;
-        const windowH = window.innerHeight;
-
-        const hasCustomSize = openedImageWidth && openedImageHeight;
-        if (hasCustomSize) {
-          // Keep default logic for fixed size if needed, but we want responsive split view
-           // ...
-        } else {
-            // Fill viewer frame
-            enlargedOverlay.style.left = `${frameR.left - mainR.left}px`;
-            enlargedOverlay.style.top = `${frameR.top - mainR.top}px`;
-            enlargedOverlay.style.width = `${frameR.width}px`;
-            enlargedOverlay.style.height = `${frameR.height}px`;
-        }
-      }
     });
     ro.observe(root);
     return () => ro.disconnect();
@@ -306,7 +267,7 @@ export default function DomeGallery({
 
     const loop = () => {
       // Rotate only if not interacting (dragging, opening, or coasting)
-      if (!draggingRef.current && !openingRef.current && !inertiaRAF.current && !focusedElRef.current) {
+      if (!draggingRef.current && !inertiaRAF.current) {
         rotationRef.current.y += 0.02;
         applyTransform(rotationRef.current.x, rotationRef.current.y);
       }
@@ -360,13 +321,11 @@ export default function DomeGallery({
   useGesture(
     {
       onDragStart: ({ event }) => {
-        if (focusedElRef.current) return;
         stopInertia();
 
         const evt = event as PointerEvent;
         pointerTypeRef.current = (evt.pointerType as any) || 'mouse';
         if (pointerTypeRef.current === 'touch') evt.preventDefault();
-        if (pointerTypeRef.current === 'touch') lockScroll();
         draggingRef.current = true;
         cancelTapRef.current = false;
         movedRef.current = false;
@@ -376,7 +335,7 @@ export default function DomeGallery({
         tapTargetRef.current = potential || null;
       },
       onDrag: ({ event, last, velocity: velArr = [0, 0], direction: dirArr = [0, 0], movement }) => {
-        if (focusedElRef.current || !draggingRef.current || !startPosRef.current) return;
+        if (!draggingRef.current || !startPosRef.current) return;
 
         const evt = event as PointerEvent;
         if (pointerTypeRef.current === 'touch') evt.preventDefault();
@@ -433,13 +392,12 @@ export default function DomeGallery({
           startPosRef.current = null;
           cancelTapRef.current = !isTap;
 
-          if (isTap && tapTargetRef.current && !focusedElRef.current) {
-            openItemFromElement(tapTargetRef.current);
+          if (isTap && tapTargetRef.current) {
+            handleItemClick(tapTargetRef.current);
           }
           tapTargetRef.current = null;
 
           if (cancelTapRef.current) setTimeout(() => (cancelTapRef.current = false), 120);
-          if (pointerTypeRef.current === 'touch') unlockScroll();
           if (movedRef.current) lastDragEndAt.current = performance.now();
           movedRef.current = false;
         }
@@ -448,349 +406,27 @@ export default function DomeGallery({
     { target: mainRef, eventOptions: { passive: false } }
   );
 
-  useEffect(() => {
-    const scrim = scrimRef.current;
-    if (!scrim) return;
-
-    const close = () => {
-      if (performance.now() - openStartedAtRef.current < 250) return;
-      const el = focusedElRef.current;
-      if (!el) return;
-      const parent = el.parentElement as HTMLElement;
-      const overlay = viewerRef.current?.querySelector('.enlarge') as HTMLElement | null;
-      if (!overlay) return;
-
-      if (countdownIntervalRef.current) {
-         clearInterval(countdownIntervalRef.current);
-         countdownIntervalRef.current = null;
-      }
-
-      const refDiv = parent.querySelector('.item__image--reference') as HTMLElement | null;
-
-      const originalPos = originalTilePositionRef.current;
-      if (!originalPos) {
-        overlay.remove();
-        if (refDiv) refDiv.remove();
-        parent.style.setProperty('--rot-y-delta', `0deg`);
-        parent.style.setProperty('--rot-x-delta', `0deg`);
-        el.style.visibility = '';
-        (el.style as any).zIndex = 0;
-        focusedElRef.current = null;
-        rootRef.current?.removeAttribute('data-enlarging');
-        openingRef.current = false;
-        return;
-      }
-
-      const currentRect = overlay.getBoundingClientRect();
-      const rootRect = rootRef.current!.getBoundingClientRect();
-
-      const originalPosRelativeToRoot = {
-        left: originalPos.left - rootRect.left,
-        top: originalPos.top - rootRect.top,
-        width: originalPos.width,
-        height: originalPos.height
-      };
-
-      const overlayRelativeToRoot = {
-        left: currentRect.left - rootRect.left,
-        top: currentRect.top - rootRect.top,
-        width: currentRect.width,
-        height: currentRect.height
-      };
-
-      const animatingOverlay = document.createElement('div');
-      animatingOverlay.className = 'enlarge-closing';
-      animatingOverlay.style.cssText = `
-        position: absolute;
-        left: ${overlayRelativeToRoot.left}px;
-        top: ${overlayRelativeToRoot.top}px;
-        width: ${overlayRelativeToRoot.width}px;
-        height: ${overlayRelativeToRoot.height}px;
-        z-index: 9999;
-        border-radius: ${openedImageBorderRadius};
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,.35);
-        transition: all ${enlargeTransitionMs}ms ease-out;
-        pointer-events: none;
-        margin: 0;
-        transform: none;
-        filter: ${grayscale ? 'grayscale(1)' : 'none'};
-      `;
-      
-      // We want to just shrink the image back, so we grab the image element only if possible
-      // or just shrink the whole thing. The text overlay will disappear with it.
-      // But for better visuals, we can remove text overlay first or let it clip.
-      
-      const originalImg = overlay.querySelector('img');
-      if (originalImg) {
-        const img = originalImg.cloneNode() as HTMLImageElement;
-        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
-        animatingOverlay.appendChild(img);
-      }
-
-      overlay.remove();
-      rootRef.current!.appendChild(animatingOverlay);
-
-      void animatingOverlay.getBoundingClientRect();
-
-      requestAnimationFrame(() => {
-        animatingOverlay.style.left = originalPosRelativeToRoot.left + 'px';
-        animatingOverlay.style.top = originalPosRelativeToRoot.top + 'px';
-        animatingOverlay.style.width = originalPosRelativeToRoot.width + 'px';
-        animatingOverlay.style.height = originalPosRelativeToRoot.height + 'px';
-        animatingOverlay.style.opacity = '0';
-      });
-
-      const cleanup = () => {
-        animatingOverlay.remove();
-        originalTilePositionRef.current = null;
-
-        if (refDiv) refDiv.remove();
-        parent.style.transition = 'none';
-        el.style.transition = 'none';
-
-        parent.style.setProperty('--rot-y-delta', `0deg`);
-        parent.style.setProperty('--rot-x-delta', `0deg`);
-
-        requestAnimationFrame(() => {
-          el.style.visibility = '';
-          el.style.opacity = '0';
-          (el.style as any).zIndex = 0;
-          focusedElRef.current = null;
-          rootRef.current?.removeAttribute('data-enlarging');
-
-          requestAnimationFrame(() => {
-            parent.style.transition = '';
-            el.style.transition = 'opacity 300ms ease-out';
-
-            requestAnimationFrame(() => {
-              el.style.opacity = '1';
-              setTimeout(() => {
-                el.style.transition = '';
-                el.style.opacity = '';
-                openingRef.current = false;
-                if (!draggingRef.current && rootRef.current?.getAttribute('data-enlarging') !== 'true') {
-                  document.body.classList.remove('dg-scroll-lock');
-                }
-              }, 300);
-            });
-          });
-        });
-      };
-
-      animatingOverlay.addEventListener('transitionend', cleanup, {
-        once: true
-      });
-    };
-
-    scrim.addEventListener('click', close);
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close();
-    };
-    window.addEventListener('keydown', onKey);
-
-    return () => {
-      scrim.removeEventListener('click', close);
-      window.removeEventListener('keydown', onKey);
-      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-    };
-  }, [enlargeTransitionMs, openedImageBorderRadius, grayscale]);
-
-  const openItemFromElement = (el: HTMLElement) => {
-    if (openingRef.current) return;
-    openingRef.current = true;
-    openStartedAtRef.current = performance.now();
-    lockScroll();
+  const handleItemClick = (el: HTMLElement) => {
+    // External Handler Logic
     const parent = el.parentElement as HTMLElement;
-    focusedElRef.current = el;
-    el.setAttribute('data-focused', 'true');
-    const offsetX = getDataNumber(parent, 'offsetX', 0);
-    const offsetY = getDataNumber(parent, 'offsetY', 0);
-    const sizeX = getDataNumber(parent, 'sizeX', 2);
-    const sizeY = getDataNumber(parent, 'sizeY', 2);
-    const parentRot = computeItemBaseRotation(offsetX, offsetY, sizeX, sizeY, segments);
-    const parentY = normalizeAngle(parentRot.rotateY);
-    const globalY = normalizeAngle(rotationRef.current.y);
-    let rotY = -(parentY + globalY) % 360;
-    if (rotY < -180) rotY += 360;
-    const rotX = -parentRot.rotateX - rotationRef.current.x;
-    parent.style.setProperty('--rot-y-delta', `${rotY}deg`);
-    parent.style.setProperty('--rot-x-delta', `${rotX}deg`);
-    const refDiv = document.createElement('div');
-    refDiv.className = 'item__image item__image--reference opacity-0';
-    refDiv.style.transform = `rotateX(${-parentRot.rotateX}deg) rotateY(${-parentRot.rotateY}deg)`;
-    parent.appendChild(refDiv);
-
-    void refDiv.offsetHeight;
-
-    const tileR = refDiv.getBoundingClientRect();
-    const mainR = mainRef.current?.getBoundingClientRect();
-    const frameR = frameRef.current?.getBoundingClientRect();
-
-    if (!mainR || !frameR || tileR.width <= 0 || tileR.height <= 0) {
-      openingRef.current = false;
-      focusedElRef.current = null;
-      parent.removeChild(refDiv);
-      unlockScroll();
-      return;
-    }
-
-    originalTilePositionRef.current = {
-      left: tileR.left,
-      top: tileR.top,
-      width: tileR.width,
-      height: tileR.height
+    
+    // Construct item object from dataset
+    const itemData = {
+        src: parent.dataset.src,
+        alt: parent.dataset.alt,
+        title: parent.dataset.title,
+        description: parent.dataset.description,
+        link: parent.dataset.link,
+        age: parent.dataset.age ? parseInt(parent.dataset.age) : undefined,
+        birthDate: parent.dataset.birthDate,
+        relationshipStatus: parent.dataset.relationshipStatus,
+        socialLink: parent.dataset.socialLink,
+        // App.tsx receives this and sets selectedMember.
     };
-    el.style.visibility = 'hidden';
-    (el.style as any).zIndex = 0;
-    const overlay = document.createElement('div');
-    overlay.className = 'enlarge';
-    overlay.style.cssText = `position:absolute; left:${frameR.left - mainR.left}px; top:${frameR.top - mainR.top}px; width:${frameR.width}px; height:${frameR.height}px; opacity:0; z-index:30; will-change:transform,opacity; transform-origin:top left; transition:transform ${enlargeTransitionMs}ms ease, opacity ${enlargeTransitionMs}ms ease; border-radius:${openedImageBorderRadius}; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.35); background: #000;`;
-    
-    // Create Layout
-    const rawSrc = parent.dataset.src || (el.querySelector('img') as HTMLImageElement)?.src || '';
-    const rawAlt = parent.dataset.alt || (el.querySelector('img') as HTMLImageElement)?.alt || '';
-    
-    const imageContainer = document.createElement('div');
-    imageContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: width 0.5s ease;';
-    
-    const img = document.createElement('img');
-    img.src = rawSrc;
-    img.alt = rawAlt;
-    img.style.cssText = `width:100%; height:100%; object-fit:cover; filter:${grayscale ? 'grayscale(1)' : 'none'};`;
-    imageContainer.appendChild(img);
-    overlay.appendChild(imageContainer);
 
-    // Add Details Overlay Logic
-    const title = parent.dataset.title;
-    const description = parent.dataset.description;
-    const link = parent.dataset.link;
-    const age = parent.dataset.age;
-    const relationshipStatus = parent.dataset.relationshipStatus;
-    const birthDate = parent.dataset.birthDate;
-
-    if (title || description) {
-      const detailsContainer = document.createElement('div');
-      // Initially hidden, fades in and slides
-      detailsContainer.style.cssText = `
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 0%; 
-        height: 100%;
-        background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,1));
-        color: white;
-        z-index: 40;
-        opacity: 0;
-        transition: opacity 500ms ease 300ms, width 500ms ease, height 500ms ease, top 500ms ease;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        padding: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-      `;
-      
-      // Use React Root for complex content if possible, but here using vanilla for speed
-      // React portals would be cleaner but this component is self-contained.
-      
-      const contentInner = document.createElement('div');
-      contentInner.style.cssText = 'padding: 40px; min-width: 100%; opacity: 0; transition: opacity 0.5s ease 0.6s; box-sizing: border-box;';
-      
-      let htmlContent = '';
-      if (title) htmlContent += `<h2 style="font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; margin: 0 0 10px 0; background: -webkit-linear-gradient(#fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${title}</h2>`;
-      if (description) htmlContent += `<p style="font-size: clamp(0.9rem, 2vw, 1rem); margin: 0 0 20px 0; color: #ccc; line-height: 1.6;">${description}</p>`;
-      
-      htmlContent += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">`;
-      if (age) htmlContent += `<div><span style="display:block; font-size: 0.8rem; color: #888; text-transform: uppercase;">Idade</span><span style="font-size: 1.2rem; font-weight: bold;">${age} anos</span></div>`;
-      if (relationshipStatus) htmlContent += `<div><span style="display:block; font-size: 0.8rem; color: #888; text-transform: uppercase;">Status</span><span style="font-size: 1.2rem; font-weight: bold;">${relationshipStatus}</span></div>`;
-      htmlContent += `</div>`;
-      
-      if (birthDate) {
-         htmlContent += `<div style="margin-bottom: 30px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-            <span style="display:flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #E1306C; text-transform: uppercase; font-weight: bold; margin-bottom: 5px;">
-               🎂 Próximo Aniversário
-            </span>
-            <span id="countdown-timer" style="font-size: 1.2rem; font-family: monospace; font-weight: bold; color: #fff;">Calculando...</span>
-         </div>`;
-      }
-
-      if (link) {
-         htmlContent += `
-          <a href="${link}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); padding: 12px 24px; border-radius: 30px; color: white; text-decoration: none; font-weight: bold; box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4); transition: transform 0.2s;">
-            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"></path></svg>
-            Seguir no Instagram
-          </a>
-         `;
-      }
-      
-      contentInner.innerHTML = htmlContent;
-      detailsContainer.appendChild(contentInner);
-      overlay.appendChild(detailsContainer);
-
-      // Countdown Logic
-      if (birthDate) {
-         const updateCountdown = () => {
-             const timerEl = detailsContainer.querySelector('#countdown-timer');
-             if (!timerEl) return;
-             
-             const now = new Date();
-             const [d, m] = birthDate.split('/').map(Number);
-             let nextBday = new Date(now.getFullYear(), m - 1, d);
-             if (now > nextBday) nextBday.setFullYear(now.getFullYear() + 1);
-             
-             const diff = nextBday.getTime() - now.getTime();
-             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-             
-             timerEl.textContent = `${days}d ${hours}h ${minutes}m`;
-         };
-         updateCountdown();
-         countdownIntervalRef.current = window.setInterval(updateCountdown, 60000);
-      }
-
-      // Trigger Split View Animation
-      requestAnimationFrame(() => {
-        // Only split on desktop (checked via matchMedia or simple width check)
-        if (window.innerWidth >= 768) {
-           imageContainer.style.width = '50%';
-           detailsContainer.style.width = '50%';
-           detailsContainer.style.height = '100%';
-           detailsContainer.style.top = '0';
-           detailsContainer.style.opacity = '1';
-           contentInner.style.opacity = '1';
-        } else {
-           // Mobile: Vertical Stack (Square Photo + Info)
-           imageContainer.style.width = '100%';
-           imageContainer.style.height = '50%';
-           
-           detailsContainer.style.width = '100%';
-           detailsContainer.style.height = '50%';
-           detailsContainer.style.top = '50%';
-           detailsContainer.style.background = 'linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,1))'; // Vertical gradient
-           detailsContainer.style.opacity = '1';
-           contentInner.style.opacity = '1';
-        }
-      });
+    if (onItemClick) {
+        onItemClick(itemData);
     }
-
-    viewerRef.current!.appendChild(overlay);
-    const tx0 = tileR.left - frameR.left;
-    const ty0 = tileR.top - frameR.top;
-    const sx0 = tileR.width / frameR.width;
-    const sy0 = tileR.height / frameR.height;
-
-    const validSx0 = isFinite(sx0) && sx0 > 0 ? sx0 : 1;
-    const validSy0 = isFinite(sy0) && sy0 > 0 ? sy0 : 1;
-
-    overlay.style.transform = `translate(${tx0}px, ${ty0}px) scale(${validSx0}, ${validSy0})`;
-    setTimeout(() => {
-      if (!overlay.parentElement) return;
-      overlay.style.opacity = '1';
-      overlay.style.transform = 'translate(0px, 0px) scale(1, 1)';
-      rootRef.current?.setAttribute('data-enlarging', 'true');
-    }, 16);
   };
 
   useEffect(() => {
@@ -848,11 +484,6 @@ export default function DomeGallery({
                  translateZ(var(--radius));
     }
 
-    .sphere-root[data-enlarging="true"] .scrim {
-      opacity: 1 !important;
-      pointer-events: all !important;
-    }
-
     /* Responsive Viewer Frame */
     .viewer-frame {
       width: 85vw;
@@ -882,11 +513,6 @@ export default function DomeGallery({
       pointer-events: auto;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
-    }
-    .item__image--reference {
-      position: absolute;
-      inset: 10px;
-      pointer-events: none;
     }
   `;
 
@@ -955,17 +581,19 @@ export default function DomeGallery({
                     onClick={e => {
                       if (draggingRef.current) return;
                       if (movedRef.current) return;
-                      if (performance.now() - lastDragEndAt.current < 80) return;
+                      // if (performance.now() - lastDragEndAt.current < 80) return; // Simplified check
                       if (openingRef.current) return;
-                      openItemFromElement(e.currentTarget as HTMLElement);
+                      // openItemFromElement(e.currentTarget as HTMLElement);
+                      handleItemClick(e.currentTarget as HTMLElement);
                     }}
                     onPointerUp={e => {
                       if ((e.nativeEvent as PointerEvent).pointerType !== 'touch') return;
                       if (draggingRef.current) return;
                       if (movedRef.current) return;
-                      if (performance.now() - lastDragEndAt.current < 80) return;
+                      // if (performance.now() - lastDragEndAt.current < 80) return; // Simplified check
                       if (openingRef.current) return;
-                      openItemFromElement(e.currentTarget as HTMLElement);
+                      // openItemFromElement(e.currentTarget as HTMLElement);
+                      handleItemClick(e.currentTarget as HTMLElement);
                     }}
                     style={{
                       inset: '10px',
@@ -1017,28 +645,6 @@ export default function DomeGallery({
               background: `linear-gradient(to bottom, transparent, var(--overlay-blur-color, ${overlayBlurColor}))`
             }}
           />
-
-          <div
-            ref={viewerRef}
-            className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center"
-            style={{ padding: 'var(--viewer-pad)' }}
-          >
-            <div
-              ref={scrimRef}
-              className="scrim absolute inset-0 z-10 pointer-events-none opacity-0 transition-opacity duration-500"
-              style={{
-                background: 'rgba(0, 0, 0, 0.4)',
-                backdropFilter: 'blur(3px)'
-              }}
-            />
-            <div
-              ref={frameRef}
-              className="viewer-frame flex flex-col md:flex-row bg-black shadow-2xl overflow-hidden"
-              style={{
-                borderRadius: `var(--enlarge-radius, ${openedImageBorderRadius})`
-              }}
-            />
-          </div>
         </main>
       </div>
     </>

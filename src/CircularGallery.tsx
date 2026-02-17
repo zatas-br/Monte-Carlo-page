@@ -535,16 +535,67 @@ class App {
     
     if (dist < 10) {
       if (this.onItemClick && this.medias && this.medias[0]) {
-        // Calculate the closest item to the center/current scroll position
-        const width = this.medias[0].width;
-        // Determine the index that is currently "active" or centered based on scroll position
-        const itemIndex = Math.round(Math.abs(this.scroll.target) / width);
-        // Map back to original array length (since we duplicated items for infinite loop)
-        const originalLength = this.mediasImages.length / 2;
-        // Normalize the index to be within 0 to originalLength-1
-        const realIndex = itemIndex % originalLength;
+        // HIT TEST: Only trigger if click is within the bounds of the centered card
+        const planeWidth = this.medias[0].plane.scale.x;
+        const planeHeight = this.medias[0].plane.scale.y;
         
-        this.onItemClick(realIndex);
+        // Convert world dimensions to screen pixels
+        // viewport.width matches the world width at z=0 (where the plane is centered)
+        const itemWidthPx = (planeWidth / this.viewport.width) * this.screen.width;
+        const itemHeightPx = (planeHeight / this.viewport.height) * this.screen.height;
+        
+        const centerX = this.screen.width / 2;
+        const centerY = this.screen.height / 2;
+        // We relaxed the check to allow side items, but we still need to check if Y is valid
+        const isWithinY = endY >= centerY - itemHeightPx / 2 && endY <= centerY + itemHeightPx / 2;
+        
+        // The previous X check was restrictive to only the center item.
+        // We now allow clicking anywhere horizontally as long as it's within Y bounds (vertically on the carousel)
+        // Ideally we should check if X is within ANY item bounds, but checking full screen width 
+        // within Y bounds is a good approximation for a carousel.
+        
+        if (isWithinY) {
+            // Calculate the closest item to the center/current scroll position
+            const width = this.medias[0].width;
+            const currentCenteredIndex = Math.round(Math.abs(this.scroll.target) / width);
+            
+            const relativeX = endX - centerX;
+            const threshold = itemWidthPx / 2; // Half the width of the center item
+
+            if (Math.abs(relativeX) < threshold) {
+                // Clicked Center -> Open Modal
+                 const originalLength = this.mediasImages.length / 2;
+                 const realIndex = currentCenteredIndex % originalLength;
+                 this.onItemClick(realIndex);
+            } else {
+                // Clicked Side -> Scroll to next/prev item
+                // If relativeX > 0 (Right side), we want to scroll RIGHT (show next item).
+                // In this implementation, scrolling right usually means increasing the scroll target (or decreasing depending on sign).
+                // Let's assume standard behavior: Clicking right edge brings the right item to center.
+                
+                // We need to move the SCROLL TARGET.
+                // If we are at index i, we want to go to i+1 or i-1.
+                // The current target is roughly i * width.
+                
+                // If relativeX > 0, we want next item.
+                // Check onWheel logic: delta > 0 -> target increases.
+                // Usually wheel down (positive delta) scrolls down/right.
+                
+                const direction = Math.sign(relativeX); 
+                // direction 1 = Right, -1 = Left.
+                
+                // We add 'width' * direction to the target to snap to the next item.
+                // However, we need to be careful with the sign of scroll.target itself.
+                // onCheck forces target to be positive or negative based on... wait.
+                // this.scroll.target = this.scroll.target < 0 ? -item : item;
+                // It maintains the sign.
+                
+                // So simply adding/subtracting width from target should work.
+                
+                this.scroll.target += direction * width;
+                this.onCheck(); // Snap
+            }
+        }
       }
     }
   }

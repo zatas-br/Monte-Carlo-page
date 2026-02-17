@@ -1,7 +1,7 @@
 import { tw } from 'typewind';
 import { historyContent, profiles, socialLinks, retrospectives, rankingCategories } from './data';
 import { FaInstagram, FaMapMarkerAlt, FaTrophy, FaQuestion, FaFutbol } from 'react-icons/fa';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import ProfileCard from './ProfileCard';
@@ -10,11 +10,15 @@ import { VscClose } from 'react-icons/vsc';
 type Formation = '4-3-3' | '4-4-2' | '3-5-2';
 type Mode = 'Campo' | 'Futsal';
 
-export default function History() {
+interface HistoryProps {
+  onMemberClick?: (member: any) => void;
+}
+
+export default function History({ onMemberClick }: HistoryProps) {
   const [showSoccerField, setShowSoccerField] = useState(false);
   const [showRanking, setShowRanking] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
-  const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
+  // selectedPlayer state removed in favor of parent state
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [formation, setFormation] = useState<Formation>('4-3-3');
   const [mode, setMode] = useState<Mode>('Campo');
@@ -26,6 +30,21 @@ export default function History() {
   // Ranking State
   const [selectedCategory, setSelectedCategory] = useState<keyof typeof rankingCategories>('Zoação / Habilidades');
   const [selectedTheme, setSelectedTheme] = useState<string>(rankingCategories['Zoação / Habilidades'][0]);
+
+  // Lock body scroll when modals are open
+  useEffect(() => {
+    if (showSoccerField || showRanking || showQuiz || selectedVideo) {
+      document.body.classList.add('no-scrollbar');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('no-scrollbar');
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.classList.remove('no-scrollbar');
+      document.body.style.overflow = 'unset';
+    };
+  }, [showSoccerField, showRanking, showQuiz, selectedVideo]);
 
   // Logic for Futsal (5 players) vs Field (11 players)
   const startersCount = mode === 'Campo' ? 11 : 5;
@@ -111,15 +130,19 @@ export default function History() {
 
   return (
     <div className={tw.w_full.h_full.relative.overflow_hidden}>
-      {/* Fixed Header */}
-      <div className={tw.absolute.top_8.w_full.text_center.z_20.pointer_events_none}>
-        <h1 className={tw.text_4xl.font_bold.mb_2.text_white.drop_shadow_lg}>{historyContent.title}</h1>
-        <h2 className={tw.text_xl.text_gray_400.font_light.drop_shadow_md}>{historyContent.subtitle}</h2>
-      </div>
-
       {/* Scrollable Content */}
-      <div className={`${tw.w_full.h_full.absolute.inset_0.overflow_y_auto.text_gray_200.p_8.pt_32.pb_32.z_10} no-scrollbar`}>
-        <div className={tw.max_w_3xl.mx_auto}>
+      <div className={`${tw.w_full.h_full.absolute.inset_0.overflow_y_auto.text_gray_200.p_8.pb_32.z_10} no-scrollbar`}>
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className={tw.max_w_3xl.mx_auto}
+        >
+          {/* Header (Now scrolls with content) */}
+          <div className={tw.w_full.text_center.mb_8.mt_8}>
+            <h1 className={tw.text_4xl.font_bold.mb_2.text_white.drop_shadow_lg}>{historyContent.title}</h1>
+            <h2 className={tw.text_xl.text_gray_400.font_light.drop_shadow_md}>{historyContent.subtitle}</h2>
+          </div>
           
           <div className={tw.flex.justify_center.mb_8}>
              <button 
@@ -217,7 +240,7 @@ export default function History() {
               "Aqui a gente não só joga, a gente faz história."
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Quiz Modal */}
@@ -289,7 +312,7 @@ export default function History() {
                    </h2>
                 </div>
                 
-                <div className="flex-1 overflow-x-auto md:overflow-x-hidden overflow-y-auto p-4 flex md:block gap-4 md:gap-0 md:space-y-6 scrollbar-hide">
+                <div className="flex-1 overflow-x-auto md:overflow-x-hidden overflow-y-auto p-4 flex md:block gap-4 md:gap-0 md:space-y-6 no-scrollbar">
                   {Object.keys(rankingCategories).map((category) => (
                     <div key={category} className="flex-shrink-0 w-64 md:w-auto">
                       <h3 className="text-purple-400 font-bold mb-2 uppercase text-xs md:text-sm tracking-wider">{category}</h3>
@@ -368,66 +391,28 @@ export default function History() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-x-0 bottom-0 top-20 lg:top-24 z-[70] bg-black/90 backdrop-blur-md overflow-y-auto no-scrollbar rounded-t-3xl border-t border-white/10"
+              className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
             >
-              <div className="min-h-full p-4 flex flex-col items-center pb-20">
+              <div 
+                className="relative w-full max-w-5xl h-fit max-h-[95vh] bg-gray-900/95 border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl"
+              >
+                {/* Close Button */}
                 <button
                   onClick={() => setShowSoccerField(false)}
-                  className="absolute top-4 right-4 p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors z-[80] text-white"
+                  className="absolute top-4 right-4 p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors z-[100] text-white"
                 >
                   <VscClose size={24} />
                 </button>
 
-                <h2 className="text-3xl font-bold text-white mt-8 mb-4">Escalação Monte Carlo</h2>
+                {/* Content Container - Scroll on Mobile, Hidden on Desktop */}
+                <div className="w-full h-full overflow-y-auto lg:overflow-hidden p-6 flex flex-col items-center no-scrollbar">
+                    <h2 className="text-3xl font-bold text-white mb-6">Escalação Monte Carlo</h2>
 
-                {/* Mode Selector (Campo vs Futsal) */}
-                <div className="flex gap-4 mb-4">
-                   <button
-                     onClick={() => setMode('Campo')}
-                     className={`px-4 py-2 rounded-full font-bold transition-all ${
-                       mode === 'Campo' 
-                         ? 'bg-green-600 text-white' 
-                         : 'bg-gray-800 text-gray-400'
-                     }`}
-                   >
-                     Campo (11)
-                   </button>
-                   <button
-                     onClick={() => setMode('Futsal')}
-                     className={`px-4 py-2 rounded-full font-bold transition-all flex items-center gap-2 ${
-                       mode === 'Futsal' 
-                         ? 'bg-blue-600 text-white' 
-                         : 'bg-gray-800 text-gray-400'
-                     }`}
-                   >
-                     <FaFutbol /> Futsal (5)
-                   </button>
-                </div>
-
-                {/* Formation Selector (Only for Campo) */}
-                {mode === 'Campo' && (
-                  <div className="flex gap-4 mb-8">
-                    {(['4-3-3', '4-4-2', '3-5-2'] as Formation[]).map((fmt) => (
-                      <button
-                        key={fmt}
-                        onClick={() => setFormation(fmt)}
-                        className={`px-4 py-2 rounded-full font-bold transition-all ${
-                          formation === fmt
-                            ? 'bg-purple-600 text-white shadow-lg scale-105'
-                            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                        }`}
-                      >
-                        {fmt}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <div className="relative w-full max-w-6xl flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8 pt-4">
+                <div className="relative w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8">
                   
                   {/* Field */}
                   <div 
-                    className={`relative w-full max-w-lg bg-green-700 rounded-xl border-4 border-white/20 shadow-2xl overflow-hidden flex-shrink-0 z-0 transition-all duration-500
+                    className={`relative w-full max-w-sm lg:max-w-md bg-green-700 rounded-xl border-4 border-white/20 shadow-2xl overflow-hidden flex-shrink-0 z-0 transition-all duration-500
                       ${mode === 'Futsal' ? 'aspect-[3/4] bg-blue-800' : 'aspect-[2/3]'}
                     `}
                     style={{
@@ -510,7 +495,7 @@ export default function History() {
                           }}
                           data-player-index={index} 
                           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                          onClick={() => setSelectedPlayer(player)}
+                          onClick={() => onMemberClick?.(player)}
                         >
                           <div className="w-16 h-16 rounded-full border-2 border-white overflow-hidden shadow-lg bg-gray-800 relative z-10 pointer-events-none">
                             <img src={player.image} alt={player.name} className="w-full h-full object-cover" />
@@ -528,10 +513,72 @@ export default function History() {
                     })}
                   </div>
 
-                  {/* Reserves (Right side on Desktop, Bottom on Mobile) */}
-                  <div className="w-full lg:w-64 flex flex-col z-10">
-                    <h3 className="text-2xl font-bold text-white mb-4 text-center lg:text-left">Reservas</h3>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-1 gap-4 max-h-[60vh] overflow-y-auto pr-2 no-scrollbar">
+                  {/* Sidebar (Controls + Reserves) */}
+                  <div className="w-full lg:w-72 flex flex-col z-10 h-full">
+                    
+                    {/* Controls Section */}
+                    <div className="mb-6 flex flex-col items-center lg:items-start gap-4 p-4 bg-gray-800/30 rounded-xl border border-white/5 w-full">
+                        <h3 className="text-sm uppercase tracking-widest text-gray-400 font-bold">Configuração</h3>
+                        
+                        {/* Mode Selector */}
+                        <div className="flex gap-2 bg-black/40 p-1 rounded-lg w-full">
+                        <button
+                            onClick={() => setMode('Campo')}
+                            className={`flex-1 px-3 py-2 rounded-md text-sm font-bold transition-all ${
+                            mode === 'Campo' 
+                                ? 'bg-green-600 text-white shadow-lg' 
+                                : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            Campo
+                        </button>
+                        <button
+                            onClick={() => setMode('Futsal')}
+                            className={`flex-1 px-3 py-2 rounded-md text-sm font-bold transition-all ${
+                            mode === 'Futsal' 
+                                ? 'bg-blue-600 text-white shadow-lg' 
+                                : 'text-gray-400 hover:text-white'
+                            }`}
+                        >
+                            Futsal
+                        </button>
+                        </div>
+
+                        {/* Formation Selector (Only for Campo) */}
+                        <AnimatePresence mode="wait">
+                            {mode === 'Campo' && (
+                                <motion.div 
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="w-full"
+                                >
+                                    <h4 className="text-xs text-gray-500 font-bold mb-2 uppercase">Formação</h4>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {(['4-3-3', '4-4-2', '3-5-2'] as Formation[]).map((fmt) => (
+                                        <button
+                                            key={fmt}
+                                            onClick={() => setFormation(fmt)}
+                                            className={`px-2 py-1.5 rounded-md text-xs font-bold transition-all border ${
+                                            formation === fmt
+                                                ? 'bg-purple-600 border-purple-500 text-white shadow-md'
+                                                : 'bg-transparent border-gray-700 text-gray-400 hover:border-gray-500'
+                                            }`}
+                                        >
+                                            {fmt}
+                                        </button>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-white mb-4 text-center lg:text-left flex items-center gap-2">
+                        Reservas <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">{benchPlayers.length}</span>
+                    </h3>
+                    
+                    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-1 gap-3 max-h-[30vh] lg:max-h-[400px] overflow-y-auto pr-1 no-scrollbar lg:scrollbar-thin lg:scrollbar-thumb-gray-700 lg:scrollbar-track-transparent">
                       {benchPlayers.map((player, index) => {
                         // Adjust index for playerOrder (reserves start after starters)
                         const realIndex = startersCount + index;
@@ -540,7 +587,7 @@ export default function History() {
                             key={`${player.name}-${realIndex}`}
                             layoutId={player.name}
                             className="bg-gray-800/50 p-2 rounded-xl border border-gray-700 flex items-center gap-3 cursor-pointer hover:bg-gray-700/50 transition-colors touch-none relative"
-                            onClick={() => setSelectedPlayer(player)}
+                            onClick={() => onMemberClick?.(player)}
                             whileHover={{ scale: 1.02 }}
                             drag
                             dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -581,6 +628,7 @@ export default function History() {
                     </div>
                   </div>
                 </div>
+                </div>
               </div>
             </motion.div>
           )}
@@ -617,43 +665,6 @@ export default function History() {
                   ></iframe>
                 </div>
               </motion.div>
-            </div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
-
-      {/* Profile Card Modal */}
-      {createPortal(
-        <AnimatePresence>
-          {selectedPlayer && (
-            <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-              <div className="absolute inset-0" onClick={() => setSelectedPlayer(null)}></div>
-              <div className="relative z-10 w-full max-w-sm">
-                  <button
-                      onClick={() => setSelectedPlayer(null)}
-                      className="absolute -top-12 right-0 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-white"
-                  >
-                      <VscClose size={24} />
-                  </button>
-                  <ProfileCard
-                    name={selectedPlayer.name}
-                    title="Jogador Monte Carlo"
-                    handle={selectedPlayer.link ? "@" + selectedPlayer.link.split('/').pop() : "@montecarlo"}
-                    avatarUrl={selectedPlayer.image}
-                    miniAvatarUrl={selectedPlayer.image}
-                    status="Online"
-                    contactText="Instagram"
-                    onContactClick={() => selectedPlayer.link && window.open(selectedPlayer.link, '_blank')}
-                    enableTilt={true}
-                    enableMobileTilt={true}
-                    showUserInfo={true}
-                    // New props
-                    overall={selectedPlayer.overall}
-                    position={selectedPlayer.position}
-                    attributes={selectedPlayer.attributes}
-                  />
-              </div>
             </div>
           )}
         </AnimatePresence>,

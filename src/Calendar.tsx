@@ -23,8 +23,36 @@ interface CalendarProps {
   onEventClick?: (event: any) => void;
 }
 
+interface Holiday {
+    date: string;
+    name: string;
+    type: 'national' | 'municipal' | 'state';
+}
+
+const holidays2026: Holiday[] = [
+    // National
+    { date: '2026-01-01', name: 'Ano Novo', type: 'national' },
+    { date: '2026-02-16', name: 'Carnaval', type: 'national' },
+    { date: '2026-02-17', name: 'Carnaval', type: 'national' },
+    { date: '2026-04-03', name: 'Sexta-feira Santa', type: 'national' },
+    { date: '2026-04-21', name: 'Tiradentes', type: 'national' },
+    { date: '2026-05-01', name: 'Dia do Trabalho', type: 'national' },
+    { date: '2026-06-04', name: 'Corpus Christi', type: 'national' },
+    { date: '2026-09-07', name: 'Independência do Brasil', type: 'national' },
+    { date: '2026-10-12', name: 'Nossa Senhora Aparecida', type: 'national' },
+    { date: '2026-11-02', name: 'Finados', type: 'national' },
+    { date: '2026-11-15', name: 'Proclamação da República', type: 'national' },
+    { date: '2026-11-20', name: 'Consciência Negra', type: 'national' },
+    { date: '2026-12-25', name: 'Natal', type: 'national' },
+    // Municipal (São Carlos)
+    { date: '2026-08-15', name: 'Nossa Senhora da Babilônia', type: 'municipal' },
+    { date: '2026-11-04', name: 'Aniversário de São Carlos', type: 'municipal' },
+    // State (SP)
+    { date: '2026-07-09', name: 'Revolução Constitucionalista', type: 'state' },
+];
+
 export default function Calendar({ onEventClick }: CalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 1)); // Start at Jan 2026 for visibility
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -83,6 +111,18 @@ export default function Calendar({ onEventClick }: CalendarProps) {
        }
     });
 
+    // Check Holidays (2026)
+    holidays2026.forEach(holiday => {
+        const holidayDate = parseISO(holiday.date);
+        if (isSameDay(holidayDate, day)) {
+            dayEvents.push({
+                type: 'holiday',
+                title: holiday.name,
+                data: holiday
+            });
+        }
+    });
+
     return dayEvents;
   };
 
@@ -134,13 +174,24 @@ export default function Calendar({ onEventClick }: CalendarProps) {
               </span>
 
               <div className="flex flex-wrap justify-center gap-1 w-full">
-                {dayEvents.map((ev, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`w-1.5 h-1.5 rounded-full ${ev.type === 'birthday' ? 'bg-pink-500 shadow-[0_0_5px_rgba(236,72,153,0.8)]' : 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]'}`}
-                    title={ev.title}
-                  />
-                ))}
+                {dayEvents.map((ev, idx) => {
+                    let dotColor = 'bg-gray-500';
+                    if (ev.type === 'birthday') dotColor = 'bg-pink-500 shadow-[0_0_5px_rgba(236,72,153,0.8)]';
+                    else if (ev.type === 'event') dotColor = 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]';
+                    else if (ev.type === 'holiday') {
+                         if (ev.data.type === 'national') dotColor = 'bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]'; // Blue for National
+                         else if (ev.data.type === 'municipal') dotColor = 'bg-purple-500 shadow-[0_0_5px_rgba(168,85,247,0.8)]'; // Purple for Municipal
+                         else dotColor = 'bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)]'; // State
+                    }
+
+                    return (
+                        <div 
+                            key={idx} 
+                            className={`w-1.5 h-1.5 rounded-full ${dotColor}`}
+                            title={ev.title}
+                        />
+                    );
+                })}
               </div>
             </div>
           );
@@ -155,34 +206,57 @@ export default function Calendar({ onEventClick }: CalendarProps) {
         
         {activeEvents.length > 0 ? (
           <div className="space-y-2">
-            {activeEvents.map((ev, idx) => (
-              <div 
-                key={idx} 
-                className={`p-3 rounded-lg border flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity ${
-                  ev.type === 'birthday' 
-                    ? 'bg-pink-500/10 border-pink-500/30 text-pink-200' 
-                    : 'bg-green-500/10 border-green-500/30 text-green-200'
-                }`}
-                onClick={() => {
-                  if (onEventClick && ev.type === 'event') onEventClick(ev);
-                }}
-              >
-                <span className="text-xl">{ev.type === 'birthday' ? '🎂' : '📅'}</span>
-                <div>
-                  <p className="font-bold text-sm">{ev.title}</p>
-                  {ev.type === 'event' && (
-                     <p className="text-xs opacity-70">
-                       {ev.data.endDate ? 
-                         `${format(parseISO(ev.data.date), 'dd/MM')} - ${format(parseISO(ev.data.endDate), 'dd/MM')}` : 
-                         'Evento de um dia'}
-                     </p>
-                  )}
-                   {ev.type === 'birthday' && (
-                     <p className="text-xs opacity-70">{ev.data.age + 1} anos (em breve)</p>
-                  )}
-                </div>
-              </div>
-            ))}
+            {activeEvents.map((ev, idx) => {
+                let cardStyle = 'bg-gray-800/50 border-gray-700 text-gray-300';
+                let icon = '📅';
+
+                if (ev.type === 'birthday') {
+                    cardStyle = 'bg-pink-500/10 border-pink-500/30 text-pink-200';
+                    icon = '🎂';
+                } else if (ev.type === 'event') {
+                    cardStyle = 'bg-green-500/10 border-green-500/30 text-green-200';
+                    icon = '🎮';
+                } else if (ev.type === 'holiday') {
+                    if (ev.data.type === 'national') {
+                         cardStyle = 'bg-blue-500/10 border-blue-500/30 text-blue-200';
+                         icon = '🇧🇷';
+                    } else if (ev.data.type === 'municipal') {
+                         cardStyle = 'bg-purple-500/10 border-purple-500/30 text-purple-200';
+                         icon = '🏛️';
+                    } else {
+                         cardStyle = 'bg-cyan-500/10 border-cyan-500/30 text-cyan-200';
+                         icon = '🚩';
+                    }
+                }
+
+                return (
+                    <div 
+                        key={idx} 
+                        className={`p-3 rounded-lg border flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity ${cardStyle}`}
+                        onClick={() => {
+                        if (onEventClick && ev.type === 'event') onEventClick(ev);
+                        }}
+                    >
+                        <span className="text-xl">{icon}</span>
+                        <div>
+                        <p className="font-bold text-sm">{ev.title}</p>
+                        {ev.type === 'event' && (
+                            <p className="text-xs opacity-70">
+                            {ev.data.endDate ? 
+                                `${format(parseISO(ev.data.date), 'dd/MM')} - ${format(parseISO(ev.data.endDate), 'dd/MM')}` : 
+                                'Evento de um dia'}
+                            </p>
+                        )}
+                        {ev.type === 'birthday' && (
+                            <p className="text-xs opacity-70">{ev.data.age + 1} anos (em breve)</p>
+                        )}
+                        {ev.type === 'holiday' && (
+                            <p className="text-xs opacity-70 capitalize">{ev.data.type === 'national' ? 'Feriado Nacional' : ev.data.type === 'municipal' ? 'Feriado Municipal' : 'Feriado Estadual'}</p>
+                        )}
+                        </div>
+                    </div>
+                );
+            })}
           </div>
         ) : (
           <p className="text-gray-500 text-sm italic">Nenhum evento neste dia.</p>

@@ -13,6 +13,20 @@ export default function Events() {
   const [viewMode, setViewMode] = useState<'gallery' | 'calendar'>('gallery');
 
   useEffect(() => {
+    if (selectedEvent) {
+      document.body.classList.add('no-scrollbar');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('no-scrollbar');
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.classList.remove('no-scrollbar');
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedEvent]);
+
+  useEffect(() => {
     const checkMobile = () => {
         setIsMobile(window.innerWidth < 768);
         if (window.innerWidth < 768 && viewMode === 'gallery') {

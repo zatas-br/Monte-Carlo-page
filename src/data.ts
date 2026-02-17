@@ -81,7 +81,7 @@ export const profiles: Profile[] = [
     overall: 87,
     age: 18,
     birthDate: "03/10",
-    relationshipStatus: "Solteiro(a)",
+    relationshipStatus: "Casado",
     position: "MEI",
     attributes: { pac: 84, sho: 82, pas: 86, dri: 88, def: 50, phy: 65 }
   },
@@ -117,7 +117,7 @@ export const profiles: Profile[] = [
     overall: 91,
     age: 18,
     birthDate: "23/07",
-    relationshipStatus: "Solteiro(a)",
+    relationshipStatus: "Casado",
     position: "PD",
     attributes: { pac: 88, sho: 85, pas: 80, dri: 89, def: 55, phy: 76 }
   },
@@ -141,7 +141,7 @@ export const profiles: Profile[] = [
     overall: 80,
     age: 17,
     birthDate: "05/06",
-    relationshipStatus: "Solteiro(a)",
+    relationshipStatus: "Casado",
     position: "LD",
     attributes: { pac: 75, sho: 65, pas: 72, dri: 78, def: 70, phy: 68 }
   },
@@ -165,7 +165,7 @@ export const profiles: Profile[] = [
     overall: 83,
     age: 18,
     birthDate: "24/11",
-    relationshipStatus: "Solteiro(a)",
+    relationshipStatus: "Enrolado com 3",
     position: "GOL",
     attributes: { pac: 55, sho: 40, pas: 65, dri: 50, def: 82, phy: 85 }
   },
@@ -189,7 +189,7 @@ export const profiles: Profile[] = [
     overall: 75,
     age: 19,
     birthDate: "15/05",
-    relationshipStatus: "Solteiro(a)",
+    relationshipStatus: "Casado",
     position: "ZAG",
     attributes: { pac: 50, sho: 60, pas: 70, dri: 65, def: 78, phy: 85 }
   },
@@ -201,7 +201,7 @@ export const profiles: Profile[] = [
     overall: 79,
     age: 18,
     birthDate: "09/01",
-    relationshipStatus: "Solteiro(a)",
+    relationshipStatus: "Casado",
     position: "ATA",
     attributes: { pac: 76, sho: 78, pas: 72, dri: 75, def: 40, phy: 70 }
   }
