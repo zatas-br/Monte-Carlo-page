@@ -98,7 +98,7 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden border border-gray-800 shadow-2xl"
+              className="relative h-[95vh] aspect-[9/16] w-auto bg-black rounded-2xl overflow-hidden border border-gray-800 shadow-2xl flex flex-col"
             >
               <button
                 onClick={() => setSelectedVideo(null)}
@@ -107,12 +107,12 @@ export default function App() {
                 <VscClose size={24} />
               </button>
               
-              <div className="relative pt-[56.25%]">
+              <div className="flex-1 w-full h-full relative">
                 <iframe
                   src={`https://player.vimeo.com/video/${selectedVideo}?badge=0&autopause=0&player_id=0&app_id=58479`}
                   frameBorder="0"
                   allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
-                  className="absolute top-0 left-0 w-full h-full"
+                  className="w-full h-full"
                   title="Retrospectiva"
                 ></iframe>
               </div>
